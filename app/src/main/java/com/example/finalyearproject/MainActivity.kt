@@ -3,12 +3,10 @@ package com.example.finalyearproject
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController  //Be careful with the type of each import
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.finalyearproject.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*    //NOT SURE WHAT IT DOES
 
@@ -21,23 +19,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
-        val navController = findNavController(R.id.fragment2)
-
-        bottomNavigationView.setupWithNavController(navController)
-
-
-
-
-       /* navController = findNavController(R.id.navHostFragment)
+        val navController = findNavController(R.id.navHostFragment)
         val appBarConfiguration = AppBarConfiguration(
-            setOf(
+                setOf(R.id.foodListFragment,
                 R.id.recipesFragment,
-                R.id.foodListFragment
-            )
-        )
+                R.id.mapFragment,
+                R.id.settingsFragment))
+
 
         bottomNavigationView.setupWithNavController(navController)
-        setupActionBarWithNavController(navController, appBarConfiguration)*/
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
     }
 
     /*override fun onSupportNavigateUp(): Boolean {
