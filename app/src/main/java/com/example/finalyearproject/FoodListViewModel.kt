@@ -6,6 +6,8 @@ import androidx.lifecycle.liveData
 import kotlinx.coroutines.delay
 
 class FoodListViewModel : ViewModel() {
+
+
         private var number = 0
     val liveData: LiveData<Int> = liveData {
         while (true) {

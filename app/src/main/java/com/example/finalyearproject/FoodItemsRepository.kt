@@ -28,7 +28,8 @@ class FoodItemsRepository {
                     dataSnapshot.getValue(FoodItemModel::class.java)!!
                 }
                 //FOR TESTING PURPOSE: Log.i("ITEMS", foodItems.toString())
-                liveData.postValue(foodItems)
+                //liveData.postValue(foodItems)
+
             }
 
             override fun onCancelled(error: DatabaseError) {

@@ -6,5 +6,8 @@ data class FoodItemModel (
     @SerializedName("name")
     val name: String,
     @SerializedName("date")
-    val date: String /*TODO might need to change this to date format*/
+    val date: String, /*TODO might need to change this to date format*/
+    @SerializedName("barcode")
+    val barcode: String
+
 )
