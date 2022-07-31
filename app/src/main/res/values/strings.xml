@@ -7,4 +7,7 @@
     <string name="recipes">Recipes</string>
 
 
+    <string name="default_barcode">01010101</string>
+
+
 </resources>

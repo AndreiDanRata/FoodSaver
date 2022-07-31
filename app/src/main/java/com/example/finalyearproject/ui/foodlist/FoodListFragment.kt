@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.fragment_food_list.view.*
 import java.util.*
 
 
+
 class FoodListFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
@@ -73,7 +74,7 @@ class FoodListFragment : Fragment() {
         val random = getRandomString(10)
         Log.d("random generated is ", random.toString())
         //push value to firebase
-        val item = FoodItemModel(foodItemName, foodItemExpirationDate)
+        val item = FoodItemModel(foodItemName, foodItemExpirationDate, "default_barcode")
         database.child("foodItems").child(random).setValue(item)
     }
 
