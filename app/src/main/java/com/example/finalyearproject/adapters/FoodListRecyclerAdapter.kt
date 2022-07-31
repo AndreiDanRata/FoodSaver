@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.example.finalyearproject.R
+import com.example.finalyearproject.models.FoodItemModel
 import com.google.firebase.database.DatabaseReference
 
 // todo implement the other classes from the tutorial for recycler in a fragment  https://medium.com/inside-ppl-b7/recyclerview-inside-fragment-with-android-studio-680cbed59d84
@@ -65,7 +66,7 @@ import com.google.firebase.database.DatabaseReference
 
      override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
 
-         for (el in database.child())
+         //for (el in database.child())
          viewHolder.name.text = name[i]
          viewHolder.date.text = date[i]
 
@@ -73,6 +74,10 @@ import com.google.firebase.database.DatabaseReference
 
      override fun getItemCount(): Int {
          return name.size
+     }
+
+     fun setItems(list: List<FoodItemModel>?) {
+            //TODO
      }
  }
 
