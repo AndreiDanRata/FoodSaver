@@ -1,11 +1,13 @@
 
 package com.example.finalyearproject.adapters
 
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.example.finalyearproject.FoodListViewModel
 import com.example.finalyearproject.R
 import com.example.finalyearproject.models.FoodItemModel
 import com.google.firebase.database.DatabaseReference
@@ -13,7 +15,8 @@ import com.google.firebase.database.DatabaseReference
 // todo implement the other classes from the tutorial for recycler in a fragment  https://medium.com/inside-ppl-b7/recyclerview-inside-fragment-with-android-studio-680cbed59d84
 
 
- class FoodListRecyclerAdapter : RecyclerView.Adapter<FoodListRecyclerAdapter.ViewHolder>() {
+ class FoodListRecyclerAdapter(val list: MutableList<FoodItemModel>) : RecyclerView.Adapter<FoodListRecyclerAdapter.ViewHolder>() {
+
 
     private val date = arrayOf(
         "d116df5",
@@ -28,11 +31,12 @@ import com.google.firebase.database.DatabaseReference
         "Keluarga", "Hutang",
         "Teknologi", "Pidana"
     )
-    private lateinit var database: DatabaseReference
+
 
 
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
 
         var name: TextView
         var date: TextView
@@ -61,14 +65,16 @@ import com.google.firebase.database.DatabaseReference
      override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
          val v = LayoutInflater.from(viewGroup.context)
                  .inflate(R.layout.foodlist_row_layout, viewGroup, false)
+         Log.d("darco2","darco2")
          return ViewHolder(v)
      }
 
      override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
+         Log.d("darco",list.toString())
 
-         //for (el in database.child())
-         viewHolder.name.text = name[i]
-         viewHolder.date.text = date[i]
+            viewHolder.name.text = list[i].name
+            viewHolder.date.text = list[i].date
+
 
      }
 

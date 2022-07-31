@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.R
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.android.synthetic.main.activity_login.*
 
 class RegistrationActivity : AppCompatActivity() {
 
@@ -19,12 +20,15 @@ class RegistrationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_registration)
 
         auth = FirebaseAuth.getInstance()
+        reg_button.setOnClickListener {
+            registerUser()
+        }
     }
 
-    public fun registerUser(view: View) {
+    fun registerUser() {
 
-        var email: String = findViewById<EditText>(R.id.email_edit_text).text.toString()
-        var password: String = findViewById<EditText>(R.id.password_edit_text).text.toString()
+        val email: String = findViewById<EditText>(R.id.email_edit_text).text.toString()
+        val password: String = findViewById<EditText>(R.id.password_edit_text).text.toString()
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->

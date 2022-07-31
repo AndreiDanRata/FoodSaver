@@ -4,10 +4,10 @@ import com.google.gson.annotations.SerializedName
 
 data class FoodItemModel (
     @SerializedName("name")
-    val name: String,
+    var name: String,
     @SerializedName("date")
-    val date: String, /*TODO might need to change this to date format*/
-    @SerializedName("barcode")
-    val barcode: String
+    var date: String, /*TODO might need to change this to date format*/
+//    @SerializedName("barcode")
+//    val barcode: String
 
 )
