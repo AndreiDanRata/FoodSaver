@@ -49,11 +49,9 @@ class FoodListFragment : Fragment() {
         val edit_name: EditText = mView.findViewById(R.id.FoodItem_EditText)
         val edit_date: EditText = mView.findViewById(R.id.FoodItemDate_EditText)
         val btn : Button = mView.findViewById(R.id.Dtb_Button)
-        //database.child("Andrei").child("2").setValue(FoodItemModel("Ciuperci","macaroane"))
         btn.setOnClickListener {
 
             // Write a message to the database
-           // if (myBundle != null) {  //Need this if i push the bundle from main activity
                 foodItemName = edit_name.text.toString()
                 foodItemExpirationDate = edit_date.text.toString()
                 addFoodItem(foodItemName, foodItemExpirationDate)
@@ -63,20 +61,24 @@ class FoodListFragment : Fragment() {
 
         }
 
-        setDate()
+
         readDatabase()
+        setDate()
+
 
 
         return mView
     }
 
-    private fun addFoodItem(foodItemName: String, foodItemExpirationDate: String) {
+    private fun addFoodItem(itemName: String, itemExpirationDate: String) {
         //create a random string id
         val random = getRandomString(10)
         Log.d("random generated is ", random.toString())
+
         //push value to firebase
-        val item = FoodItemModel(foodItemName, foodItemExpirationDate)
-        database.child("foodItems").child(random).setValue(item)
+        //val item = FoodItemModel(foodItemName, foodItemExpirationDate) //TODO Does not work because: the key in the database(itemExpirationDate/itemName) is different from name/date (Model class fields)
+        database.child("foodItems").child(random).child("itemExpirationDate").setValue(itemExpirationDate)
+        database.child("foodItems").child(random).child("itemName").setValue(itemName)
     }
 
     //Random String for the FoodItemId
@@ -93,9 +95,7 @@ class FoodListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        database  = Firebase.database.reference
-        // read data
-        readDatabase()
+        //readDatabase()
         mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
         //Log.d("lista", foodList.toString())
         mView.food_recyclerview.adapter = FoodListRecyclerAdapter(foodList)         //TODO Make card dissaper 3 seconds after clicked(also include cancel if clicked again)
@@ -112,9 +112,7 @@ class FoodListFragment : Fragment() {
                 Log.d("ITEM LIST", expirationDate + name)
             }
 
-            mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
-           
-            mView.food_recyclerview.adapter = FoodListRecyclerAdapter(foodList)         //TODO Make card dissaper 3 seconds after clicked(also include cancel if clicked again)
+            setupRecyclerView()
 
         }.addOnFailureListener {
             Log.e("firebase", "Error getting data", it)

@@ -18,21 +18,6 @@ import com.google.firebase.database.DatabaseReference
  class FoodListRecyclerAdapter(val list: MutableList<FoodItemModel>) : RecyclerView.Adapter<FoodListRecyclerAdapter.ViewHolder>() {
 
 
-    private val date = arrayOf(
-        "d116df5",
-        "36ffc75", "f5cfe78", "5b87628",
-        "db8d14e", "9913dc4", "e120f96",
-        "466251b"
-    )
-
-    private val name = arrayOf(
-        "Kekayaan", "Teknologi",
-        "Keluarga", "Bisnis",
-        "Keluarga", "Hutang",
-        "Teknologi", "Pidana"
-    )
-
-
 
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -65,7 +50,6 @@ import com.google.firebase.database.DatabaseReference
      override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
          val v = LayoutInflater.from(viewGroup.context)
                  .inflate(R.layout.foodlist_row_layout, viewGroup, false)
-         Log.d("darco2","darco2")
          return ViewHolder(v)
      }
 
@@ -79,7 +63,7 @@ import com.google.firebase.database.DatabaseReference
      }
 
      override fun getItemCount(): Int {
-         return name.size
+         return list.size
      }
 
      fun setItems(list: List<FoodItemModel>?) {

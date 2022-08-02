@@ -3,6 +3,7 @@ package com.example.finalyearproject.ui.login
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -30,23 +31,36 @@ class LoginActivity : AppCompatActivity() {
 
         val login_button = findViewById<Button>(R.id.login_button)
         login_button.setOnClickListener {
+            //loginUser()
             startActivity(Intent(this,MainActivity::class.java))
         }
 
     }
 
-    fun loginUser(view: View) {
+    fun loginUser() {
+        var check = true
         var email: String = findViewById<EditText>(R.id.login_email_edit_text).text.toString()
         var password: String = findViewById<EditText>(R.id.login_password_edit_text).text.toString()
-
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
-                } else {
-                    Toast.makeText(this, "Unable to login. Check your input or try again later", Toast.LENGTH_SHORT).show()
+        if(email == "") {        //TODO ADD HERE INPUT SANITATION: EMAIL FORMAT + PASSWORD MIN 6 CHARS
+            Toast.makeText(this, "The email can not be empty", Toast.LENGTH_SHORT).show()
+            check = false
+        }
+        if(password == "") {        //TODO ADD HERE INPUT SANITATION: EMAIL FORMAT + PASSWORD MIN 6 CHARS
+            Toast.makeText(this, "The password can not be empty", Toast.LENGTH_SHORT).show()
+            check = false
+        }
+        if(check) {
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
+                    } else {
+                        Toast.makeText(this, "Unable to login. Check your input or try again later", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
+        }
+
+
     }
 }
