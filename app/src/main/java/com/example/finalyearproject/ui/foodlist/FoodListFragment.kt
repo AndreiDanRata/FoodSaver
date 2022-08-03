@@ -1,6 +1,7 @@
 package com.example.finalyearproject.ui.foodlist
 
 
+import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.util.Log
@@ -10,16 +11,17 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.finalyearproject.adapters.FoodListRecyclerAdapter
+import com.example.finalyearproject.BarcodeScannerActivity
+import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.R
+import com.example.finalyearproject.adapters.FoodListRecyclerAdapter
 import com.example.finalyearproject.models.FoodItemModel
-
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_food_list.view.*
 import java.util.*
-
 
 
 class FoodListFragment : Fragment() {
@@ -61,6 +63,7 @@ class FoodListFragment : Fragment() {
 
         }
 
+        camera_fab()
 
         readDatabase()
         setDate()
@@ -99,6 +102,18 @@ class FoodListFragment : Fragment() {
         mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
         //Log.d("lista", foodList.toString())
         mView.food_recyclerview.adapter = FoodListRecyclerAdapter(foodList)         //TODO Make card dissaper 3 seconds after clicked(also include cancel if clicked again)
+    }
+
+    private fun camera_fab() {
+        val fab: View = mView.findViewById(R.id.Camera_Fab)
+        fab.setOnClickListener { view ->
+            /*Snackbar.make(view, "Snackbar", Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show()*/
+
+
+            startActivity(Intent(activity, BarcodeScannerActivity::class.java))
+        }
     }
 
     private fun readDatabase() {

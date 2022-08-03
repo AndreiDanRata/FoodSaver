@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import com.example.finalyearproject.BarcodeScannerActivity
 import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.R
 import com.google.firebase.auth.FirebaseAuth
@@ -31,7 +32,7 @@ class LoginActivity : AppCompatActivity() {
 
         val login_button = findViewById<Button>(R.id.login_button)
         login_button.setOnClickListener {
-            //loginUser()
+            //loginUser()  //TODO USE THIS IN REAL ENV
             startActivity(Intent(this,MainActivity::class.java))
         }
 
