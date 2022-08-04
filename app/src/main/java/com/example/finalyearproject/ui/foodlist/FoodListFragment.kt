@@ -11,17 +11,21 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.finalyearproject.BarcodeScannerActivity
-import com.example.finalyearproject.MainActivity
-import com.example.finalyearproject.R
+import com.example.finalyearproject.*
 import com.example.finalyearproject.adapters.FoodListRecyclerAdapter
+import com.example.finalyearproject.barcodescanner.BarcodeScannerActivity
+import com.example.finalyearproject.barcodescanner.BarcodesList
 import com.example.finalyearproject.models.FoodItemModel
-import com.google.android.material.snackbar.Snackbar
+import com.example.finalyearproject.util.Constants
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_food_list.view.*
+import java.io.InputStreamReader
+import java.net.URL
 import java.util.*
+import javax.net.ssl.HttpsURLConnection
 
 
 class FoodListFragment : Fragment() {
@@ -30,6 +34,18 @@ class FoodListFragment : Fragment() {
     private lateinit var database: DatabaseReference
     private lateinit var mView: View
     private var foodList: MutableList<FoodItemModel> = ArrayList<FoodItemModel>()
+    private var mAdapter = FoodListRecyclerAdapter(foodList)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        for(code in BarcodesList.barcodes) {
+            fetchAPIData(code).start()
+            BarcodesList.barcodes.remove(code)
+        }
+    }
+
+
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -64,13 +80,59 @@ class FoodListFragment : Fragment() {
         }
 
         camera_fab()
-
         readDatabase()
         setDate()
-
+        //deleteFoodItem()
 
 
         return mView
+    }
+
+    private fun fetchAPIData(barcode : String): Thread
+    {
+        return Thread {
+            val url = URL(Constants.BARCODE_BASE_URL + barcode + "?apikey=" + Constants.BARCODE_API_KEY)
+            val connection = url.openConnection() as HttpsURLConnection
+
+            if(connection.responseCode == 200) {
+                val inputSystem = connection.inputStream
+                val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
+                val request = Gson().fromJson(inputStreamReader, Request::class.java)
+
+                addFoodItem(request.title, SimpleDateFormat("dd.MM.yyyy").format(Date()))  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
+
+                inputStreamReader.close()
+                inputSystem.close()
+                Log.d("API_RESPONSE", request.description)
+            }
+            else {
+
+
+                /*Toast.makeText(  //TODO IF THE BARCODE DOES NOT EXIST... THE APP QUITS OR THROWS A WEIRD ERROR....
+                    context,
+                    "Failed Connection...Please check your internet connection.",
+                    Toast.LENGTH_SHORT
+                )
+                    .show()*/
+            }
+        }
+    }
+
+    public fun deleteFoodItem() {
+
+
+        val delete_btn: Button = mView.findViewById(R.id.delete_button)
+
+        val position = mView.food_recyclerview.getChildAdapterPosition(delete_btn)
+       // mView.food_recyclerview.get
+
+
+        delete_btn.setOnClickListener{
+            foodList.removeAt(position)//FoodItemModel())
+            mAdapter.notifyItemRemoved(position)
+
+           // database.child("foodItems").child()
+        }
     }
 
     private fun addFoodItem(itemName: String, itemExpirationDate: String) {
@@ -82,6 +144,7 @@ class FoodListFragment : Fragment() {
         //val item = FoodItemModel(foodItemName, foodItemExpirationDate) //TODO Does not work because: the key in the database(itemExpirationDate/itemName) is different from name/date (Model class fields)
         database.child("foodItems").child(random).child("itemExpirationDate").setValue(itemExpirationDate)
         database.child("foodItems").child(random).child("itemName").setValue(itemName)
+        //database.child("foodItems").child(random).child("key").setValue(random)
     }
 
     //Random String for the FoodItemId
@@ -101,7 +164,7 @@ class FoodListFragment : Fragment() {
         //readDatabase()
         mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
         //Log.d("lista", foodList.toString())
-        mView.food_recyclerview.adapter = FoodListRecyclerAdapter(foodList)         //TODO Make card dissaper 3 seconds after clicked(also include cancel if clicked again)
+        mView.food_recyclerview.adapter = mAdapter        //TODO Make card dissaper 3 seconds after clicked(also include cancel if clicked again)
     }
 
     private fun camera_fab() {
@@ -123,6 +186,7 @@ class FoodListFragment : Fragment() {
             for (el in it.children) {
                 val expirationDate = el.child("itemExpirationDate").value.toString()
                 val name = el.child("itemName").value.toString()
+                //val key = el.child("key").value.toString()
                 foodList.add(FoodItemModel(name,expirationDate))
                 Log.d("ITEM LIST", expirationDate + name)
             }
@@ -142,5 +206,6 @@ class FoodListFragment : Fragment() {
         val currentDateandTime = sdf.format(Date())
         dateTextView.text = currentDateandTime
     }
+
 
 }

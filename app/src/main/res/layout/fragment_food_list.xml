@@ -11,8 +11,8 @@
         android:id="@+id/title_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="40dp"
+        android:layout_marginTop="20dp"
         android:alpha="0.5"
         android:text="Food List"
         android:textSize="40sp"
@@ -30,33 +30,22 @@
         android:text=""
         android:textSize="20sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/title_textView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/title_textView"
-        app:layout_constraintTop_toTopOf="@id/title_textView"
-        app:layout_constraintBottom_toBottomOf="@id/title_textView" />
+        app:layout_constraintTop_toTopOf="@id/title_textView" />
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/food_recyclerview"
-        android:layout_width="0dp"
-        android:layout_height="350dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/displayDate_textView" />
 
     <TextView
         android:id="@+id/infodatabase_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:text="Add item to database: Name + Date"
+        app:layout_constraintBottom_toTopOf="@+id/FoodItem_EditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/food_recyclerview" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/FoodItem_EditText"
@@ -64,10 +53,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:text=""
+        android:hint="Username"
+        app:layout_constraintBottom_toTopOf="@+id/FoodItemDate_EditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/infodatabase_textView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/FoodItemDate_EditText"
@@ -75,20 +64,20 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:text=""
+        android:hint="Password"
+        app:layout_constraintBottom_toTopOf="@+id/Dtb_Button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/FoodItem_EditText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/Camera_Fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
         android:src="@drawable/ic_baseline_camera"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/Dtb_Button"
@@ -96,9 +85,20 @@
         android:layout_height="wrap_content"
         android:text="Submit"
         android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/food_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/FoodItemDate_EditText" />
+        app:layout_constraintBottom_toTopOf="@+id/infodatabase_textView"
+        app:layout_constraintTop_toBottomOf="@+id/title_textView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

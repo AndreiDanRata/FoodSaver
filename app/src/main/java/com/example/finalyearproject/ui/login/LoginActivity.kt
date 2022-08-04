@@ -3,16 +3,12 @@ package com.example.finalyearproject.ui.login
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.example.finalyearproject.BarcodeScannerActivity
 import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.core.view.View
-import kotlinx.android.synthetic.main.activity_login.*
 
 
 class LoginActivity : AppCompatActivity() {

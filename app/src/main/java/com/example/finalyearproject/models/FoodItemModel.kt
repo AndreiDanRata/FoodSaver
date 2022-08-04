@@ -7,6 +7,8 @@ data class FoodItemModel (
 
     var date: String, /*TODO might need to change this to date format*/
 
+  // var key: String,
+
 //    val barcode: String
 
 )

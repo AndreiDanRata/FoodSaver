@@ -54,10 +54,10 @@ import com.google.firebase.database.DatabaseReference
      }
 
      override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
-         Log.d("darco",list.toString())
 
             viewHolder.name.text = list[i].name
             viewHolder.date.text = list[i].date
+
 
 
      }
@@ -65,6 +65,7 @@ import com.google.firebase.database.DatabaseReference
      override fun getItemCount(): Int {
          return list.size
      }
+
 
      fun setItems(list: List<FoodItemModel>?) {
             //TODO

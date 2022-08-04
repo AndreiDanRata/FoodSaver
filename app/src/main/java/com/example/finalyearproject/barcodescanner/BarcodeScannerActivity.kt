@@ -1,4 +1,4 @@
-package com.example.finalyearproject
+package com.example.finalyearproject.barcodescanner
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -34,7 +34,10 @@ class BarcodeScannerActivity : AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         checkCameraPermission()
+
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
