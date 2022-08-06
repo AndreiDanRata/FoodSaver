@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:hint="Username"
+        android:hint="Food Item"
         app:layout_constraintBottom_toTopOf="@+id/FoodItemDate_EditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:hint="Password"
+        android:hint="Expiration Date"
         app:layout_constraintBottom_toTopOf="@+id/Dtb_Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

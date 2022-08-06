@@ -31,10 +31,10 @@ import javax.net.ssl.HttpsURLConnection
 class FoodListFragment : Fragment() {
 
 
-    private lateinit var database: DatabaseReference
+    private var database: DatabaseReference = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private lateinit var mView: View
     private var foodList: MutableList<FoodItemModel> = ArrayList<FoodItemModel>()
-    private var mAdapter = FoodListRecyclerAdapter(foodList)
+    private var mAdapter = FoodListRecyclerAdapter(foodList,database)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,16 +45,10 @@ class FoodListFragment : Fragment() {
         }
     }
 
-
-
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        //Database
-        //get arguments
-        database = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
-
 
         var foodItemName: String
         var foodItemExpirationDate: String
@@ -79,10 +73,10 @@ class FoodListFragment : Fragment() {
 
         }
 
+
         camera_fab()
         readDatabase()
         setDate()
-        //deleteFoodItem()
 
 
         return mView
@@ -91,60 +85,57 @@ class FoodListFragment : Fragment() {
     private fun fetchAPIData(barcode : String): Thread
     {
         return Thread {
-            val url = URL(Constants.BARCODE_BASE_URL + barcode + "?apikey=" + Constants.BARCODE_API_KEY)
-            val connection = url.openConnection() as HttpsURLConnection
+            val itemExpirationDate = SimpleDateFormat("dd/MM/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
 
-            if(connection.responseCode == 200) {
-                val inputSystem = connection.inputStream
-                val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
-                val request = Gson().fromJson(inputStreamReader, Request::class.java)
+            try {
+                val url = URL(Constants.BARCODE_BASE_URL + barcode + "?apikey=" + Constants.BARCODE_API_KEY)
+                val connection = url.openConnection() as HttpsURLConnection
+                Log.d("CONNECTION_RESPONSE_CODE",connection.responseCode.toString())
+                if(connection.responseCode == 200) {
+                    val inputSystem = connection.inputStream
+                    val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
+                    val request = Gson().fromJson(inputStreamReader, Request::class.java)
+                    if(request.title != "") {
+                        addFoodItem(request.title, itemExpirationDate)
+                    }
+                    else if(request.description != ""){
+                        addFoodItem(request.description, itemExpirationDate)
+                    }
 
-                addFoodItem(request.title, SimpleDateFormat("dd.MM.yyyy").format(Date()))  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
+                    inputStreamReader.close()
+                    inputSystem.close()
+                    Log.d("API_RESPONSE", request.description + request.title)
+                }
+                else {
+                    Log.d("NO_CODE_API","")
 
-                inputStreamReader.close()
-                inputSystem.close()
-                Log.d("API_RESPONSE", request.description)
+                    /*Toast.makeText(  //TODO IF THE BARCODE DOES NOT EXIST... THE APP SOMETIMES RESTARTS OR THROWS A WEIRD ERROR.... IT DOES NOT ENTER THIS BRANCH CUZ THE RESPONSE CODE IS STILL 200
+                        context,
+                        "Failed Connection...Please check your internet connection.",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()*/
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-            else {
 
-
-                /*Toast.makeText(  //TODO IF THE BARCODE DOES NOT EXIST... THE APP QUITS OR THROWS A WEIRD ERROR....
-                    context,
-                    "Failed Connection...Please check your internet connection.",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()*/
-            }
         }
     }
 
-    public fun deleteFoodItem() {
 
-
-        val delete_btn: Button = mView.findViewById(R.id.delete_button)
-
-        val position = mView.food_recyclerview.getChildAdapterPosition(delete_btn)
-       // mView.food_recyclerview.get
-
-
-        delete_btn.setOnClickListener{
-            foodList.removeAt(position)//FoodItemModel())
-            mAdapter.notifyItemRemoved(position)
-
-           // database.child("foodItems").child()
-        }
-    }
 
     private fun addFoodItem(itemName: String, itemExpirationDate: String) {
         //create a random string id
-        val random = getRandomString(10)
-        Log.d("random generated is ", random.toString())
+        val random_key = getRandomString(10)
+        Log.d("random generated is ", random_key.toString())
 
-        //push value to firebase
-        //val item = FoodItemModel(foodItemName, foodItemExpirationDate) //TODO Does not work because: the key in the database(itemExpirationDate/itemName) is different from name/date (Model class fields)
-        database.child("foodItems").child(random).child("itemExpirationDate").setValue(itemExpirationDate)
-        database.child("foodItems").child(random).child("itemName").setValue(itemName)
-        //database.child("foodItems").child(random).child("key").setValue(random)
+        if(itemName!= "" && itemExpirationDate!= "") {
+            //push value to firebase
+            val item = FoodItemModel(itemName, itemExpirationDate,random_key)
+            database.child("foodItems").child(random_key).setValue(item)
+        }
     }
 
     //Random String for the FoodItemId
@@ -186,9 +177,10 @@ class FoodListFragment : Fragment() {
             for (el in it.children) {
                 val expirationDate = el.child("itemExpirationDate").value.toString()
                 val name = el.child("itemName").value.toString()
+                val key = el.child("key").value.toString()
                 //val key = el.child("key").value.toString()
-                foodList.add(FoodItemModel(name,expirationDate))
-                Log.d("ITEM LIST", expirationDate + name)
+                foodList.add(FoodItemModel(name,expirationDate,key))
+                Log.d("ITEM LIST", "$expirationDate $name $key")
             }
 
             setupRecyclerView()

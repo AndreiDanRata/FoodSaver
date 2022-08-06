@@ -8,7 +8,11 @@
         android:id="@+id/foodListFragment"
         android:name="com.example.finalyearproject.ui.foodlist.FoodListFragment"
         android:label="fragment_food_list"
-        tools:layout="@layout/fragment_food_list" />
+        tools:layout="@layout/fragment_food_list" >
+        <action
+            android:id="@+id/action_foodListFragment_to_barcodeCamera"
+            app:destination="@id/barcodeCamera" />
+    </fragment>
     <fragment
         android:id="@+id/recipesFragment"
         android:name="com.example.finalyearproject.ui.recipes.RecipesFragment"
@@ -24,4 +28,10 @@
         android:name="com.example.finalyearproject.ui.MapFragment"
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" />
+    <activity
+        android:id="@+id/barcodeCamera"
+        android:name="com.example.finalyearproject.barcodescanner.BarcodeScannerActivity"
+        android:label="activity_barcode_scanner"
+        tools:layout="@layout/activity_barcode_scanner"
+        />
 </navigation>
