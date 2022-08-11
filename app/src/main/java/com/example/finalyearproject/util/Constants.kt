@@ -14,6 +14,7 @@ class Constants {
         const val RECIPES_BASE_URL = "https://api.spoonacular.com/recipes/findByIngredients?apiKey=def03f97eb664436ac3a62c793e582a7&ingredients="
 
 
+        const val  MAPS_API_KEY=""
     }
 }
 

@@ -8,6 +8,8 @@ data class FoodItemModel (
 
     var key: String,
 
+    var toDonate: Boolean
+
 //    val barcode: String
 
 )

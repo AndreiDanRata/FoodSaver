@@ -3,18 +3,18 @@
 
     <item
         android:id="@+id/foodListFragment"
-        android:icon="@drawable/ic_baseline_find_replace_24"
+        android:icon="@drawable/ic_food_list"
         android:title="Food" />
     <item
         android:id="@+id/recipesFragment"
-        android:icon="@drawable/ic_baseline_find_replace_24"
+        android:icon="@drawable/ic_recipes"
         android:title="Recipes" />
     <item
         android:id="@+id/mapFragment"
-        android:icon="@drawable/ic_baseline_find_replace_24"
+        android:icon="@drawable/ic_map"
         android:title="Map" />
     <item
         android:id="@+id/settingsFragment"
-        android:icon="@drawable/ic_baseline_find_replace_24"
+        android:icon="@drawable/ic_settings"
         android:title="Settings" />
 </menu>

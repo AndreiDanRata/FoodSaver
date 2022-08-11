@@ -28,8 +28,8 @@ class LoginActivity : AppCompatActivity() {
 
         val login_button = findViewById<Button>(R.id.login_button)
         login_button.setOnClickListener {
-            //loginUser()  //TODO USE THIS IN REAL ENV
-            startActivity(Intent(this,MainActivity::class.java))
+            loginUser()
+
         }
 
     }

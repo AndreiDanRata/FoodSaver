@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:alpha="0.5"
         android:text="Food List"
         android:textSize="40sp"
@@ -40,8 +40,8 @@
         android:id="@+id/infodatabase_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
         android:text="Add item to database: Name + Date"
         app:layout_constraintBottom_toTopOf="@+id/FoodItem_EditText"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,12 +89,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/food_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="450dp"
-        android:layout_marginTop="20dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="5dp"
+        android:longClickable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/infodatabase_textView"
