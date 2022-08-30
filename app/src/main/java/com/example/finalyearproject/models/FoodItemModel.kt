@@ -1,5 +1,9 @@
 package com.example.finalyearproject.models
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class FoodItemModel (
 
     var itemName: String,
@@ -12,4 +16,4 @@ data class FoodItemModel (
 
 //    val barcode: String
 
-)
+): Parcelable

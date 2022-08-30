@@ -14,5 +14,9 @@
     <color name="lightGray">#F9F9F9</color>
 
     <color name="green">#009B42</color>
+    <color name="red">#FF4646</color>
+    <color name="yellow">#FFC114</color>
+    <color name="darkGray">#313C44</color>
+    <color name="darker">#151B20</color>
 
 </resources>

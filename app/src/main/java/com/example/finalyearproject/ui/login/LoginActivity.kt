@@ -1,8 +1,12 @@
 package com.example.finalyearproject.ui.login
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -38,6 +42,8 @@ class LoginActivity : AppCompatActivity() {
         var check = true
         var email: String = findViewById<EditText>(R.id.login_email_edit_text).text.toString()
         var password: String = findViewById<EditText>(R.id.login_password_edit_text).text.toString()
+        Log.d("EMAIL_LOGIN",email)
+        Log.d("EMAIL_LOGIN",password)
         if(email == "") {        //TODO ADD HERE INPUT SANITATION: EMAIL FORMAT + PASSWORD MIN 6 CHARS
             Toast.makeText(this, "The email can not be empty", Toast.LENGTH_SHORT).show()
             check = false
@@ -60,4 +66,6 @@ class LoginActivity : AppCompatActivity() {
 
 
     }
+
+
 }

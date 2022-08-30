@@ -11,6 +11,9 @@ import com.example.finalyearproject.R
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
 
+/**
+ * Class for map fragment: creates the marker with the firebase data
+ */
 class InfoWindowMapAdapter(mContext: Context) : GoogleMap.InfoWindowAdapter {
     var mWindow: View = LayoutInflater.from(mContext).inflate(R.layout.info_window_maps, null)
 
@@ -19,7 +22,6 @@ class InfoWindowMapAdapter(mContext: Context) : GoogleMap.InfoWindowAdapter {
         val snippet = marker.snippet
         val tvTitle = mWindow.findViewById<TextView>(R.id.title_textView)
         val tvSnippet = mWindow.findViewById<TextView>(R.id.snippet_textView)
-        
 
         if (!TextUtils.isEmpty(title)) {
             tvTitle.text = title

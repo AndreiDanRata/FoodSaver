@@ -1,8 +1,6 @@
 package com.example.finalyearproject.adapters
 
-import android.annotation.SuppressLint
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,16 +19,16 @@ import kotlinx.android.synthetic.main.foodlist_row_layout.view.*
 
 class FoodListRecyclerAdapter(
     var list: MutableList<FoodItemModel>,
-    val database: DatabaseReference,
+    private val database: DatabaseReference,
     val fragment: FoodListFragment,
-    val userFirebaseUID: String
+    private val userFirebaseUID: String
 ) : RecyclerView.Adapter<FoodListRecyclerAdapter.ViewHolder>() {
 
     var onItemClick: ((FoodItemModel, Int) -> Unit)? = null
 
     var onItemLongClick: ((FoodItemModel, Int) -> Unit)? = null
 
-    lateinit var delete_btn: Button
+    private lateinit var delete_btn: Button
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -59,8 +57,7 @@ class FoodListRecyclerAdapter(
 
         viewHolder.name.text = foodItemModel.itemName
         viewHolder.date.text = foodItemModel.itemExpirationDate
-        viewHolder.rowView.tag =
-            foodItemModel.key   //TAG NEEDED TO DELETE THE DATA FROM THE DATABASE
+        viewHolder.rowView.tag = foodItemModel.key   //TAG NEEDED TO DELETE THE DATA FROM THE DATABASE
 
         //DONATIONS
         if(foodItemModel.toDonate == true) {
@@ -77,6 +74,8 @@ class FoodListRecyclerAdapter(
             database.child("foodItems").child(userFirebaseUID).child(key.toString()).removeValue()
             list.removeAt(position)
             notifyItemRemoved(position)
+            notifyItemRangeChanged(position,list.size)
+            //Eror has to do something with the animations of the delete button
         }
 
 

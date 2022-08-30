@@ -1,6 +1,7 @@
 package com.example.finalyearproject.ui.foodlist
 
 
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
@@ -9,13 +10,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.view.doOnDetach
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.finalyearproject.R
-import com.example.finalyearproject.Request
+import com.example.finalyearproject.models.BarcodeApiRequest
 import com.example.finalyearproject.adapters.FoodListRecyclerAdapter
 import com.example.finalyearproject.barcodescanner.BarcodeScannerActivity
 import com.example.finalyearproject.barcodescanner.BarcodesList
@@ -32,15 +31,18 @@ import java.io.InputStreamReader
 import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
-
+/**
+ * Class responsible for the food list fragment
+ * */
 
 class FoodListFragment : Fragment() {
 
 
-    private var database: DatabaseReference =
-        Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
+    private var database: DatabaseReference = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private var userFirebaseUID: String = FirebaseAuth.getInstance().currentUser!!.uid
+
     private lateinit var mView: View
+
     private var foodList: MutableList<FoodItemModel> = ArrayList<FoodItemModel>()
     private var mAdapter = FoodListRecyclerAdapter(foodList, database, this, userFirebaseUID)
 
@@ -60,9 +62,6 @@ class FoodListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        var foodItemName: String
-        var foodItemExpirationDate: String
-
         // Inflate the layout for this fragment
 
         mView = inflater.inflate(R.layout.fragment_food_list, container, false)
@@ -72,19 +71,53 @@ class FoodListFragment : Fragment() {
         val edit_name: EditText = mView.findViewById(R.id.FoodItem_EditText)
         val edit_date: EditText = mView.findViewById(R.id.FoodItemDate_EditText)
         val btn: Button = mView.findViewById(R.id.Dtb_Button)
+
+        edit_date.showSoftInputOnFocus = false
+        edit_date.setOnClickListener{
+
+            val c = Calendar.getInstance()
+
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { _, year, monthOfYear, dayOfMonth ->
+
+                    val dat = (dayOfMonth.toString() + "-" + (monthOfYear + 1) + "-" + year)
+                    edit_date.setText(dat)
+                },
+
+                // pass year, month and day for the selected date in our date picker.
+                year,
+                month,
+                day
+            )
+            datePickerDialog.show()
+        }
+
+
         btn.setOnClickListener {
+            // Add an item to the database
 
-            // Write a message to the database
-            foodItemName = edit_name.text.toString()
-            foodItemExpirationDate = edit_date.text.toString()
-            addFoodItem(foodItemName, foodItemExpirationDate)
+            var foodItemName = edit_name.text.toString()
+            var foodItemExpirationDate = edit_date.text.toString()
 
-            mAdapter.addItem(FoodItemModel(foodItemName,foodItemExpirationDate,"0",false))
+            if (foodItemName == "") {
+                Toast.makeText(this.context, "Failed...Check again your item name", Toast.LENGTH_LONG).show()
+            } else {
+                if (foodItemExpirationDate == "") {
+                    Toast.makeText(this.context, "Failed...Pick an expiration date", Toast.LENGTH_LONG).show()
+                }  else {
+
+                    addFoodItem(foodItemName, foodItemExpirationDate)
+                    mAdapter.addItem(FoodItemModel(foodItemName,foodItemExpirationDate,"0",false))
+                    Toast.makeText(this.context, "Added to Database", Toast.LENGTH_LONG).show()
+                }
+            }
             edit_name.text.clear()
             edit_date.text.clear()
-
-            Toast.makeText(this.context, "Added to Database", Toast.LENGTH_SHORT).show()
-
         }
 
 
@@ -107,22 +140,22 @@ class FoodListFragment : Fragment() {
                 val url =
                     URL(Constants.BARCODE_BASE_URL + barcode + "?apikey=" + Constants.BARCODE_API_KEY)
                 val connection = url.openConnection() as HttpsURLConnection
-                Log.d("CONNECTION_RESPONSE_CODE", connection.responseCode.toString())
+                //Log.d("FOODLIST_CONNECTION_RESPONSE_CODE", connection.responseCode.toString())
                 if (connection.responseCode == 200) {
                     val inputSystem = connection.inputStream
                     val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
-                    val request = Gson().fromJson(inputStreamReader, Request::class.java)
-                    if (request.title != "") {
-                        addFoodItem(request.title, itemExpirationDate)
-                    } else if (request.description != "") {
-                        addFoodItem(request.description, itemExpirationDate)
+                    val barcodeApiRequest = Gson().fromJson(inputStreamReader, BarcodeApiRequest::class.java)
+                    if (barcodeApiRequest.title != "") {
+                        addFoodItem(barcodeApiRequest.title, itemExpirationDate)
+                    } else if (barcodeApiRequest.description != "") {
+                        addFoodItem(barcodeApiRequest.description, itemExpirationDate)
                     }
 
                     inputStreamReader.close()
                     inputSystem.close()
-                    Log.d("API_RESPONSE", request.description + request.title)
+                   //Log.d("FOODLIST_API_RESPONSE", barcodeApiRequest.description + barcodeApiRequest.title)
                 } else {
-                    Log.d("NO_CODE_API", "")
+                    Log.d("FOODLIST_NO_CODE_API", "")
 
                     /*Toast.makeText(  //TODO IF THE BARCODE DOES NOT EXIST... THE APP SOMETIMES RESTARTS OR THROWS A WEIRD ERROR.... IT DOES NOT ENTER THIS BRANCH CUZ THE RESPONSE CODE IS STILL 200
                         context,
@@ -143,7 +176,6 @@ class FoodListFragment : Fragment() {
     private fun addFoodItem(itemName: String, itemExpirationDate: String) {
         //create a random string id
         val random_key = getRandomString(10)
-        Log.d("random generated is ", random_key.toString())
 
         if (itemName != "" && itemExpirationDate != "") {
             //push value to firebase
@@ -156,13 +188,10 @@ class FoodListFragment : Fragment() {
 
 
     private fun setupRecyclerView() {
-        //readDatabase()
         mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
-        mView.food_recyclerview.hasFixedSize()    //this???
-        //Log.d("lista", foodList.toString())
+       // mView.food_recyclerview.setHasFixedSize(true)
+        mView.food_recyclerview.hasFixedSize()
         mView.food_recyclerview.adapter = mAdapter
-
-
     }
 
     private fun camera_fab() {
@@ -181,10 +210,9 @@ class FoodListFragment : Fragment() {
                 val name = el.child("itemName").value.toString()
                 val key = el.child("key").value.toString()
                 val donation = el.child("toDonate").value.toString().toBoolean()
-                Log.d("DONATION_VALUE", donation.toString())
 
                 foodList.add(FoodItemModel(name, expirationDate, key,donation))
-                Log.d("ITEM LIST", "$expirationDate $name $key")
+                //Log.d("ITEM LIST", "$expirationDate $name $key")
             }
 
             setupRecyclerView()

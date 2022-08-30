@@ -1,6 +1,6 @@
-package com.example.finalyearproject
+package com.example.finalyearproject.models
 
-class Request(
+class BarcodeApiRequest(
     var title : String,
     var description : String,
     var success : Boolean,

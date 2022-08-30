@@ -1,9 +1,12 @@
 package com.example.finalyearproject.ui.login
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View  //check with the other import for view line14
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import com.example.finalyearproject.MainActivity
@@ -36,8 +39,12 @@ class RegistrationActivity : AppCompatActivity() {
                     Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this, MainActivity::class.java))
                 } else {
-                    Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "An error occurred. Check your password is at least 6 characters", Toast.LENGTH_SHORT).show()
                 }
             }
     }
+
+
+
+   
 }
