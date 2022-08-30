@@ -4,12 +4,14 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.finalyearproject.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
@@ -27,6 +29,13 @@ class BarcodeScannerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        var actionBar = supportActionBar
+
+        if (actionBar != null) {
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_48);
+            actionBar.setDisplayHomeAsUpEnabled(true)
+        }
 
         binding = ActivityBarcodeScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -141,5 +150,17 @@ class BarcodeScannerActivity : AppCompatActivity() {
                 exc.printStackTrace()
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onContextItemSelected(item)
     }
 }
