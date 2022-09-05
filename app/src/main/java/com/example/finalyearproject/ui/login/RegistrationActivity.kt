@@ -33,7 +33,7 @@ class RegistrationActivity : AppCompatActivity() {
         val email: String = findViewById<EditText>(R.id.email_edit_text).text.toString()
         val password: String = findViewById<EditText>(R.id.password_edit_text).text.toString()
 
-        auth.createUserWithEmailAndPassword(email, password)
+        auth.createUserWithEmailAndPassword(trim(email), password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
@@ -44,6 +44,10 @@ class RegistrationActivity : AppCompatActivity() {
             }
     }
 
+    //Removes whitespaces from the beginning and from the end
+    fun trim(s: String): String {
+        return s.replace("^\\s+|\\s+$".toRegex(), "")
+    }
 
 
    

@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
             check = false
         }
         if(check) {
-            auth.signInWithEmailAndPassword(email, password)
+            auth.signInWithEmailAndPassword(trim(email), password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
@@ -63,8 +63,11 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
         }
+    }
 
-
+    //Removes whitespaces from the beginning and from the end
+    fun trim(s: String): String {
+        return s.replace("^\\s+|\\s+$".toRegex(), "")
     }
 
 

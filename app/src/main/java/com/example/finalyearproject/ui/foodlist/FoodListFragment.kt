@@ -51,8 +51,8 @@ class FoodListFragment : Fragment() {
 
         for (code in BarcodesList.barcodes) {
             fetchAPIData(code).start()
-            BarcodesList.barcodes.remove(code)
         }
+        BarcodesList.barcodes.clear()
 
 
     }
@@ -85,7 +85,7 @@ class FoodListFragment : Fragment() {
                 requireContext(),
                 { _, year, monthOfYear, dayOfMonth ->
 
-                    val dat = (dayOfMonth.toString() + "-" + (monthOfYear + 1) + "-" + year)
+                    val dat = (dayOfMonth.toString() + "/" + (monthOfYear + 1) + "/" + year)
                     edit_date.setText(dat)
                 },
 
@@ -145,35 +145,30 @@ class FoodListFragment : Fragment() {
                     val inputSystem = connection.inputStream
                     val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
                     val barcodeApiRequest = Gson().fromJson(inputStreamReader, BarcodeApiRequest::class.java)
-                    if (barcodeApiRequest.title != "") {
-                        addFoodItem(barcodeApiRequest.title, itemExpirationDate)
-                    } else if (barcodeApiRequest.description != "") {
-                        addFoodItem(barcodeApiRequest.description, itemExpirationDate)
+                    if (barcodeApiRequest.success) {
+                        if(barcodeApiRequest.title != "") {
+                            addFoodItem(barcodeApiRequest.title, itemExpirationDate)
+                        } else if(barcodeApiRequest.description != "") {
+                            addFoodItem(barcodeApiRequest.description, itemExpirationDate)
+                        }
+                    } else {
+                        Toast.makeText(this.context, "Some items' barcodes are not yet", Toast.LENGTH_LONG).show()
+                        //Log.d("API_BARCODE_NOT_FOUND", "The barcode was not found in the api database")
                     }
-
                     inputStreamReader.close()
                     inputSystem.close()
                    //Log.d("FOODLIST_API_RESPONSE", barcodeApiRequest.description + barcodeApiRequest.title)
                 } else {
                     Log.d("FOODLIST_NO_CODE_API", "")
-
-                    /*Toast.makeText(  //TODO IF THE BARCODE DOES NOT EXIST... THE APP SOMETIMES RESTARTS OR THROWS A WEIRD ERROR.... IT DOES NOT ENTER THIS BRANCH CUZ THE RESPONSE CODE IS STILL 200
-                        context,
-                        "Failed Connection...Please check your internet connection.",
-                        Toast.LENGTH_SHORT
-                    )
-                        .show()*/
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
         }
     }
 
 
-    private fun addFoodItem(itemName: String, itemExpirationDate: String) {
+    public fun addFoodItem(itemName: String, itemExpirationDate: String) {
         //create a random string id
         val random_key = getRandomString(10)
 

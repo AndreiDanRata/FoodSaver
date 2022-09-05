@@ -2,6 +2,7 @@ package com.example.finalyearproject.barcodescanner
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -17,6 +18,7 @@ import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import com.example.finalyearproject.databinding.ActivityBarcodeScannerBinding
+import com.google.mlkit.vision.barcode.Barcode
 
 /**
  * Class responsible for scanning QR Codes and Barcodes.
@@ -29,6 +31,7 @@ class BarcodeScannerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         var actionBar = supportActionBar
 
@@ -118,6 +121,8 @@ class BarcodeScannerActivity : AppCompatActivity() {
     /**
      * This function is responsible for the setup of the camera preview and the image analyzer.
      */
+
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
@@ -163,4 +168,6 @@ class BarcodeScannerActivity : AppCompatActivity() {
         }
         return super.onContextItemSelected(item)
     }
+
+
 }

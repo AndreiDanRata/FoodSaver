@@ -77,7 +77,7 @@ class RecipesFragment : Fragment() {
         //Log.d("API_RESPONSE_GET_RECIPES", urlIngredients)
 
         fetchAPIData(urlIngredients).start()
-        Thread.sleep(5000) //TODO LOAD DATA WHEN STARTING THE APP https://stackoverflow.com/questions/71635342/recyclerview-loading-data-from-web-api-how-to-prevent-that-the-recyclerview-is
+        Thread.sleep(7000) //TODO LOAD DATA WHEN STARTING THE APP https://stackoverflow.com/questions/71635342/recyclerview-loading-data-from-web-api-how-to-prevent-that-the-recyclerview-is
 
         Log.d("API_RESPONSE_GET_RECIPES_DATA_RECYCLERVIEW",recipeList.first().title+"xxxxxxx"+recipeList.size)
         setupRecyclerView()
