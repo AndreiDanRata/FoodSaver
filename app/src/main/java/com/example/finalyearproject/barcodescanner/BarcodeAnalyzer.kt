@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.example.finalyearproject.R
+import com.example.finalyearproject.util.Utils
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -56,11 +57,15 @@ class BarcodeAnalyzer (
 
             BarcodesList.barcodes.add(barcode)
             scanCues(barcode)
+            Utils.fetchAPIData(barcode, this.context).start()
+
         } else {
 
             if(barcode !=  BarcodesList.barcodes.lastOrNull()) {
                 BarcodesList.barcodes.add(barcode)
                 scanCues(barcode)
+                Utils.fetchAPIData(barcode, this.context).start()
+
 
                 //Log.d("BARCODES_LIST", BarcodesList.barcodes.toString())
             }

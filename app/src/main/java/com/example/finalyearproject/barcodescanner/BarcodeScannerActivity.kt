@@ -18,6 +18,7 @@ import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import com.example.finalyearproject.databinding.ActivityBarcodeScannerBinding
+import com.example.finalyearproject.util.Utils
 import com.google.mlkit.vision.barcode.Barcode
 
 /**
@@ -29,8 +30,10 @@ class BarcodeScannerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBarcodeScannerBinding
     private lateinit var cameraExecutor: ExecutorService
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
 
         var actionBar = supportActionBar
@@ -53,7 +56,7 @@ class BarcodeScannerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
+        BarcodesList.barcodes.clear()
         cameraExecutor.shutdown()
     }
 

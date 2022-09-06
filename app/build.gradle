@@ -87,6 +87,10 @@ dependencies {
     implementation 'com.google.zxing:core:3.4.0'
 
 
+    //Refresh swipe recycler view
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+
     //JSOUP HTML PARSER
     implementation 'org.jsoup:jsoup:1.10.3'
 

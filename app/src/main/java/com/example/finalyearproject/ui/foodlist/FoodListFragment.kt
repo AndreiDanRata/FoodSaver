@@ -5,6 +5,7 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,30 +14,28 @@ import android.widget.*
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.example.finalyearproject.R
-import com.example.finalyearproject.models.BarcodeApiRequest
 import com.example.finalyearproject.adapters.FoodListRecyclerAdapter
 import com.example.finalyearproject.barcodescanner.BarcodeScannerActivity
-import com.example.finalyearproject.barcodescanner.BarcodesList
 import com.example.finalyearproject.models.FoodItemModel
-import com.example.finalyearproject.util.Constants
+import com.example.finalyearproject.util.Utils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_food_list.view.*
-import java.io.InputStreamReader
-import java.net.URL
 import java.util.*
-import javax.net.ssl.HttpsURLConnection
+
+
 /**
  * Class responsible for the food list fragment
  * */
 
 class FoodListFragment : Fragment() {
-
+    lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private var database: DatabaseReference = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private var userFirebaseUID: String = FirebaseAuth.getInstance().currentUser!!.uid
@@ -48,12 +47,6 @@ class FoodListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        for (code in BarcodesList.barcodes) {
-            fetchAPIData(code).start()
-        }
-        BarcodesList.barcodes.clear()
-
 
     }
 
@@ -111,13 +104,29 @@ class FoodListFragment : Fragment() {
                     Toast.makeText(this.context, "Failed...Pick an expiration date", Toast.LENGTH_LONG).show()
                 }  else {
 
-                    addFoodItem(foodItemName, foodItemExpirationDate)
+                    Utils.addFoodItem(foodItemName, foodItemExpirationDate)
                     mAdapter.addItem(FoodItemModel(foodItemName,foodItemExpirationDate,"0",false))
                     Toast.makeText(this.context, "Added to Database", Toast.LENGTH_LONG).show()
                 }
             }
             edit_name.text.clear()
             edit_date.text.clear()
+        }
+
+
+        //Refresh recyclerView
+        swipeRefreshLayout = mView.findViewById(R.id.swipeRefreshLayout)
+
+        swipeRefreshLayout.setOnRefreshListener{
+
+
+            Handler().postDelayed(Runnable {
+                foodList.clear()
+                readDatabase()
+//                val maAdapter = FoodListRecyclerAdapter(foodList, database, this, userFirebaseUID)
+//                mView.food_recyclerview.adapter = maAdapter
+                swipeRefreshLayout.isRefreshing = false
+            }, 2000)
         }
 
 
@@ -131,60 +140,9 @@ class FoodListFragment : Fragment() {
         return mView
     }
 
-    private fun fetchAPIData(barcode: String): Thread {
-        return Thread {
-            val itemExpirationDate =
-                SimpleDateFormat("dd/MM/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
-
-            try {
-                val url =
-                    URL(Constants.BARCODE_BASE_URL + barcode + "?apikey=" + Constants.BARCODE_API_KEY)
-                val connection = url.openConnection() as HttpsURLConnection
-                //Log.d("FOODLIST_CONNECTION_RESPONSE_CODE", connection.responseCode.toString())
-                if (connection.responseCode == 200) {
-                    val inputSystem = connection.inputStream
-                    val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
-                    val barcodeApiRequest = Gson().fromJson(inputStreamReader, BarcodeApiRequest::class.java)
-                    if (barcodeApiRequest.success) {
-                        if(barcodeApiRequest.title != "") {
-                            addFoodItem(barcodeApiRequest.title, itemExpirationDate)
-                        } else if(barcodeApiRequest.description != "") {
-                            addFoodItem(barcodeApiRequest.description, itemExpirationDate)
-                        }
-                    } else {
-                        Toast.makeText(this.context, "Some items' barcodes are not yet", Toast.LENGTH_LONG).show()
-                        //Log.d("API_BARCODE_NOT_FOUND", "The barcode was not found in the api database")
-                    }
-                    inputStreamReader.close()
-                    inputSystem.close()
-                   //Log.d("FOODLIST_API_RESPONSE", barcodeApiRequest.description + barcodeApiRequest.title)
-                } else {
-                    Log.d("FOODLIST_NO_CODE_API", "")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-
-    public fun addFoodItem(itemName: String, itemExpirationDate: String) {
-        //create a random string id
-        val random_key = getRandomString(10)
-
-        if (itemName != "" && itemExpirationDate != "") {
-            //push value to firebase
-            val item = FoodItemModel(itemName, itemExpirationDate, random_key,false)
-
-            database
-                .child("foodItems").child(userFirebaseUID).child(random_key).setValue(item)
-        }
-    }
-
 
     private fun setupRecyclerView() {
         mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
-       // mView.food_recyclerview.setHasFixedSize(true)
         mView.food_recyclerview.hasFixedSize()
         mView.food_recyclerview.adapter = mAdapter
     }
@@ -224,19 +182,6 @@ class FoodListFragment : Fragment() {
         val sdf = SimpleDateFormat("dd.MM.yyyy")
         val currentDateandTime = sdf.format(Date())
         dateTextView.text = currentDateandTime
-    }
-
-    //Random String for the FoodItemId
-    private fun getRandomString(length: Int): String {
-        val sb = StringBuilder(length)
-        val alphabet = "asdfgfhjklqwertyuiopzxcvbnmASDFGHJKLZXCVBNMQWERTYUIOP1234567890"
-        val rand = Random()
-
-        for (i in 0 until sb.capacity()) {
-            val index = rand.nextInt(alphabet.length)
-            sb.append(alphabet[index])
-        }
-        return sb.toString()
     }
 
     private fun addBottomSheet() {
