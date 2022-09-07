@@ -25,7 +25,7 @@ object Utils {
     fun fetchAPIData(barcode: String, context: Context): Thread {
         return Thread {
             val itemExpirationDate =
-                SimpleDateFormat("dd/MM/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
+                SimpleDateFormat("d/m/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
 
             try {
                 val url =
@@ -73,7 +73,7 @@ object Utils {
 
 
     //Random String for the FoodItemId
-    fun getRandomString(length: Int): String {
+    private fun getRandomString(length: Int): String {
         val sb = StringBuilder(length)
         val alphabet = "asdfgfhjklqwertyuiopzxcvbnmASDFGHJKLZXCVBNMQWERTYUIOP1234567890"
         val rand = Random()

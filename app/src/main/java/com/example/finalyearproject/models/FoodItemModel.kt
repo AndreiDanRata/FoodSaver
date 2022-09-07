@@ -8,7 +8,7 @@ data class FoodItemModel (
 
     var itemName: String,
 
-    var itemExpirationDate: String, /*TODO might need to change this to date format*/
+    var itemExpirationDate: String,
 
     var key: String,
 

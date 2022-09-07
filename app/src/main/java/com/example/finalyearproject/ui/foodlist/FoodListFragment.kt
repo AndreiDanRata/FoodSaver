@@ -1,9 +1,12 @@
 package com.example.finalyearproject.ui.foodlist
 
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -11,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,6 +31,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.fragment_food_list.view.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -50,10 +56,11 @@ class FoodListFragment : Fragment() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Inflate the layout for this fragment
 
@@ -94,8 +101,8 @@ class FoodListFragment : Fragment() {
         btn.setOnClickListener {
             // Add an item to the database
 
-            var foodItemName = edit_name.text.toString()
-            var foodItemExpirationDate = edit_date.text.toString()
+            val foodItemName = edit_name.text.toString()
+            val foodItemExpirationDate = edit_date.text.toString()
 
             if (foodItemName == "") {
                 Toast.makeText(this.context, "Failed...Check again your item name", Toast.LENGTH_LONG).show()
@@ -154,6 +161,7 @@ class FoodListFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun readDatabase() {
 
         database.child("foodItems").child(userFirebaseUID).get().addOnSuccessListener {
@@ -168,6 +176,11 @@ class FoodListFragment : Fragment() {
                 //Log.d("ITEM LIST", "$expirationDate $name $key")
             }
 
+            //SORT the food items list by the expiration date
+            val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+            foodList.sortBy { foodItemModel ->
+                LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter) }
+
             setupRecyclerView()
 
         }.addOnFailureListener {
@@ -177,9 +190,10 @@ class FoodListFragment : Fragment() {
     }
 
 
+    @SuppressLint("SimpleDateFormat")
     private fun setDate() {
         val dateTextView: TextView = mView.findViewById(R.id.displayDate_textView)
-        val sdf = SimpleDateFormat("dd.MM.yyyy")
+        val sdf = SimpleDateFormat("d/M/yyyy")
         val currentDateandTime = sdf.format(Date())
         dateTextView.text = currentDateandTime
     }
