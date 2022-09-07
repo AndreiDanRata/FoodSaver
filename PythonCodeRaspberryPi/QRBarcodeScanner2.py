@@ -67,7 +67,7 @@ class MyScript:
         name = MyScript.GetBarcodeApiData(barcodeData)
         if name != 0:
             key =  MyScript.GetRandomKey()
-            expirationDate = date.today().strftime("%d/%m/%Y")    
+            expirationDate = date.today().strftime("%-d/%-m/%Y")    
             print(barcodeData)
             #Add items to firebase database
             db.child("foodItems").child(userFirebase).child(key).child("itemName").set(name)
@@ -85,7 +85,7 @@ class MyScript:
             shortestExpDate = datetime.datetime(2025,5,5)
             for item in items.each():
                 itemVal=item.val() #the value
-                date = datetime.datetime.strptime(itemVal['itemExpirationDate'], '%d/%M/%Y')
+                date = datetime.datetime.strptime(itemVal['itemExpirationDate'], '%-d/%-m/%Y')
                 if(date<shortestExpDate):  #the more recent date has bigger value
                     shortestExpDate = date
                     shortestExpDateKey = item.key()
