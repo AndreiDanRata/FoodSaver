@@ -1,29 +1,24 @@
 package com.example.finalyearproject
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
-import android.icu.text.SimpleDateFormat
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
-import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.finalyearproject.models.FoodItemModel
-import com.example.finalyearproject.ui.foodlist.FoodListFragment
+import com.example.finalyearproject.util.NotificationReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        myAlarm()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         navController = findNavController(R.id.navHostFragment)
@@ -56,5 +52,31 @@ class MainActivity : AppCompatActivity() {
             imm.hideSoftInputFromWindow(this.currentFocus!!.windowToken, 0)
         }
         return super.dispatchTouchEvent(ev)
+    }
+
+
+    private fun myAlarm() {
+        val calendar = Calendar.getInstance()
+        calendar[Calendar.HOUR_OF_DAY] = 22
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+        calendar.set(Calendar.SECOND, 0)
+        if (calendar.time < Date()){
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        val intent = Intent(applicationContext, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        alarmManager.setAndAllowWhileIdle(  //setRepeat
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            //AlarmManager.INTERVAL_DAY,       //add a short interval for testing
+            pendingIntent
+        )
     }
 }

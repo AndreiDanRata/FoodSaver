@@ -200,6 +200,9 @@ class FoodListFragment : Fragment() {
             foodList.sortBy { foodItemModel ->
                 LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter)
             }
+            for(el in foodList) {
+
+            }
 
             setupRecyclerView()
 
