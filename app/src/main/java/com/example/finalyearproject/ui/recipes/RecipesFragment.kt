@@ -4,18 +4,17 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.R
 import com.example.finalyearproject.adapters.RecipesRecyclerAdapter
-import com.example.finalyearproject.barcodescanner.BarcodeScannerActivity
-import com.example.finalyearproject.models.RecipeModel
 import com.example.finalyearproject.models.FoodItemModel
+import com.example.finalyearproject.models.RecipeModel
 import com.example.finalyearproject.ui.instructions.InstructionsActivity
 import com.example.finalyearproject.util.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -33,28 +32,29 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.function.Predicate
 import javax.net.ssl.HttpsURLConnection
-import kotlin.collections.ArrayList
-import kotlin.random.Random.Default.nextInt
 
 
 class RecipesFragment : Fragment() {
 
-    private var database: DatabaseReference = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
+    private var database: DatabaseReference =
+        Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private var userFirebaseUID: String = FirebaseAuth.getInstance().currentUser!!.uid
     private var foodList: MutableList<FoodItemModel> = ArrayList<FoodItemModel>()
 
     private var recipeList: MutableList<RecipeModel> = ArrayList<RecipeModel>()
-    private var recipeIds:  MutableList<Int> = ArrayList<Int>()
+    private var recipeIds: MutableList<Int> = ArrayList<Int>()
 
     private lateinit var mView: View
     private val mmAdapter by lazy { RecipesRecyclerAdapter(recipeList) } //add here the recipe list
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         // Inflate the layout for this fragment
-        mView = inflater.inflate(R.layout.fragment_recipes,container,false)
+        mView = inflater.inflate(R.layout.fragment_recipes, container, false)
 
         readDatabase()
 
@@ -69,25 +69,29 @@ class RecipesFragment : Fragment() {
     private fun getRecipes(numRecipes: Int) {
 
         var counter = 0
-        var ingredients : String = ""
+        var ingredients: String = ""
 
-       loop@ for(item in foodList) {
+        loop@ for (item in foodList) {
 
-           if( counter > 5 || counter > foodList.size) break@loop
+            if (counter > 5 || counter > foodList.size) break@loop
 
-           ingredients += item.itemName.replace(" ","")  + ",+"
-           counter ++
+            ingredients += item.itemName.replace(" ", "") + ",+"
+            counter++
         }
 
         ingredients = ingredients.dropLast(2)
 
-        var urlIngredients= Constants.SEARCH_BY_INGREDIENTS_BASE_URL + ingredients + "&number="+numRecipes+"&ranking=1&ignorePantry=true"
+        var urlIngredients =
+            Constants.SEARCH_BY_INGREDIENTS_BASE_URL + ingredients + "&number=" + numRecipes + "&ranking=1&ignorePantry=true"
         //Log.d("API_RESPONSE_GET_RECIPES", urlIngredients)
 
         fetchAPIData(urlIngredients).start()
         Thread.sleep(7000) //TODO LOAD DATA WHEN STARTING THE APP https://stackoverflow.com/questions/71635342/recyclerview-loading-data-from-web-api-how-to-prevent-that-the-recyclerview-is
 
-        Log.d("API_RESPONSE_GET_RECIPES_DATA_RECYCLERVIEW",recipeList.first().title+"xxxxxxx"+recipeList.size)
+        Log.d(
+            "API_RESPONSE_GET_RECIPES_DATA_RECYCLERVIEW",
+            recipeList.first().title + "xxxxxxx" + recipeList.size
+        )
         setupRecyclerView()
     }
 
@@ -104,16 +108,17 @@ class RecipesFragment : Fragment() {
         return Thread {
 
             try {
-                val url =URL(urlString)
+                val url = URL(urlString)
                 val connection = url.openConnection() as HttpsURLConnection
                 Log.d("API_RESPONSE_GET_RECIPES_CONNECTION_RESPONSE_CODE", connection.responseCode.toString())
                 if (connection.responseCode == 200) {
                     val inputSystem = connection.inputStream
                     val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
                     val typeToken = object : TypeToken<List<RecipeModel>>() {}.type
-                    val recipeModel = Gson().fromJson<List<RecipeModel>>(inputStreamReader, typeToken)
+                    val recipeModel =
+                        Gson().fromJson<List<RecipeModel>>(inputStreamReader, typeToken)
 
-                    for(recipe in recipeModel) {
+                    for (recipe in recipeModel) {
                         recipeIds.add(recipe.id)
                     }
                     inputStreamReader.close()
@@ -126,10 +131,11 @@ class RecipesFragment : Fragment() {
                 val randomElements = recipeIds.asSequence().shuffled().take(5).toList()
 
 
-                for(id in randomElements){
+                for (id in randomElements) {
 
-                    var urlRecipe= Constants.SEARCH_BY_ID_BASE_URL + id + "/information?includeNutrition=false&apiKey=def03f97eb664436ac3a62c793e582a7"
-                    val url2 =URL(urlRecipe)
+                    var urlRecipe =
+                        Constants.SEARCH_BY_ID_BASE_URL + id + "/information?includeNutrition=false&apiKey=def03f97eb664436ac3a62c793e582a7"
+                    val url2 = URL(urlRecipe)
 
                     val connection = url2.openConnection() as HttpsURLConnection
 
@@ -137,7 +143,8 @@ class RecipesFragment : Fragment() {
                         val inputSystem = connection.inputStream
                         val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
 
-                        var recipeModel = Gson().fromJson(inputStreamReader, RecipeModel::class.java)
+                        var recipeModel =
+                            Gson().fromJson(inputStreamReader, RecipeModel::class.java)
 
                         recipeList.add(recipeModel) //TO PARSE HTML TEXT Jsoup.parse(recipeApiRequest.summary).text()
                         //Log.d("API_RESPONSE_GET_RECIPES",   Jsoup.parse(recipeApiRequest.summary).text())
@@ -153,10 +160,13 @@ class RecipesFragment : Fragment() {
     }
 
     //removes expired items from our food list
-    fun <FoodItemModel> removeExpiredItems(list: MutableList<FoodItemModel>, predicate: Predicate<FoodItemModel>) {
+    fun <FoodItemModel> removeExpiredItems(
+        list: MutableList<FoodItemModel>,
+        predicate: Predicate<FoodItemModel>
+    ) {
         list.removeIf { x: FoodItemModel -> predicate.test(x) }
     }
-    
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun readDatabase() {
 
@@ -166,20 +176,32 @@ class RecipesFragment : Fragment() {
                 val name = el.child("itemName").value.toString()
                 val expirationDate = el.child("itemExpirationDate").value.toString()
 
-                foodList.add(FoodItemModel(name, expirationDate, "",false))
+                foodList.add(FoodItemModel(name, expirationDate, "", false))
             }
 
 
             val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
-            val expired = Predicate { item: FoodItemModel -> LocalDate.parse(item.itemExpirationDate, dateTimeFormatter) < LocalDate.now() }
+            val expired = Predicate { item: FoodItemModel ->
+                LocalDate.parse(
+                    item.itemExpirationDate,
+                    dateTimeFormatter
+                ) < LocalDate.now()
+            }
             removeExpiredItems(foodList, expired)
 
             //SORT the food items list by the expiration date
             foodList.sortBy { foodItemModel ->
-                LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter) }
+                LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter)
+            }
 
-
-            getRecipes(25)
+            val emptyTextView: TextView = mView.findViewById(R.id.empty_textView)
+            if(foodList.isNotEmpty()) {
+                emptyTextView.visibility = View.INVISIBLE
+                getRecipes(25)
+            }
+            else {
+                emptyTextView.visibility = View.VISIBLE
+            }
 
         }.addOnFailureListener {
             Log.e("firebase", "Error getting data", it)
@@ -192,17 +214,16 @@ class RecipesFragment : Fragment() {
         mView.recipes_recyclerview.hasFixedSize()
 
 
-
     }
 
-    private fun redirectToInstructions(){
+    private fun redirectToInstructions() {
         mmAdapter.onItemClick = { currentRecipe ->
             val url = currentRecipe.sourceUrl
 
             var bundle = Bundle()
             bundle.putString("url", url)
 
-            val intent =  Intent(activity, InstructionsActivity::class.java)
+            val intent = Intent(activity, InstructionsActivity::class.java)
 
             intent.putExtras(bundle)
 

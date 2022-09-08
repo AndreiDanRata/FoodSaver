@@ -4,7 +4,6 @@ package com.example.finalyearproject.ui.foodlist
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
@@ -15,11 +14,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.example.finalyearproject.R
 import com.example.finalyearproject.adapters.FoodListRecyclerAdapter
 import com.example.finalyearproject.barcodescanner.BarcodeScannerActivity
@@ -43,7 +43,8 @@ import java.util.*
 class FoodListFragment : Fragment() {
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private var database: DatabaseReference = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
+    private var database: DatabaseReference =
+        Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private var userFirebaseUID: String = FirebaseAuth.getInstance().currentUser!!.uid
 
     private lateinit var mView: View
@@ -51,8 +52,15 @@ class FoodListFragment : Fragment() {
     private var foodList: MutableList<FoodItemModel> = ArrayList<FoodItemModel>()
     private var mAdapter = FoodListRecyclerAdapter(foodList, database, this, userFirebaseUID)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onStart() {
+        super.onStart()
+
+
+        val sdf = SimpleDateFormat("d/M/yyyy")
+        val currentDateandTime = sdf.format(Date())
+
+        (activity as AppCompatActivity).supportActionBar?.title =
+            "Food List                     Today: $currentDateandTime"
 
     }
 
@@ -61,9 +69,7 @@ class FoodListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         // Inflate the layout for this fragment
-
         mView = inflater.inflate(R.layout.fragment_food_list, container, false)
 
 
@@ -73,7 +79,7 @@ class FoodListFragment : Fragment() {
         val btn: Button = mView.findViewById(R.id.Dtb_Button)
 
         edit_date.showSoftInputOnFocus = false
-        edit_date.setOnClickListener{
+        edit_date.setOnClickListener {
 
             val c = Calendar.getInstance()
 
@@ -105,14 +111,29 @@ class FoodListFragment : Fragment() {
             val foodItemExpirationDate = edit_date.text.toString()
 
             if (foodItemName == "") {
-                Toast.makeText(this.context, "Failed...Check again your item name", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this.context,
+                    "Failed...Check again your item name",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 if (foodItemExpirationDate == "") {
-                    Toast.makeText(this.context, "Failed...Pick an expiration date", Toast.LENGTH_LONG).show()
-                }  else {
+                    Toast.makeText(
+                        this.context,
+                        "Failed...Pick an expiration date",
+                        Toast.LENGTH_LONG
+                    ).show()
+                } else {
 
                     Utils.addFoodItem(foodItemName, foodItemExpirationDate)
-                    mAdapter.addItem(FoodItemModel(foodItemName,foodItemExpirationDate,"0",false))
+                    mAdapter.addItem(
+                        FoodItemModel(
+                            foodItemName,
+                            foodItemExpirationDate,
+                            "0",
+                            false
+                        )
+                    )
                     Toast.makeText(this.context, "Added to Database", Toast.LENGTH_LONG).show()
                 }
             }
@@ -124,7 +145,7 @@ class FoodListFragment : Fragment() {
         //Refresh recyclerView
         swipeRefreshLayout = mView.findViewById(R.id.swipeRefreshLayout)
 
-        swipeRefreshLayout.setOnRefreshListener{
+        swipeRefreshLayout.setOnRefreshListener {
 
 
             Handler().postDelayed(Runnable {
@@ -141,12 +162,10 @@ class FoodListFragment : Fragment() {
         readDatabase()
         addBottomSheet()
         changeToDonations()
-        setDate()
 
 
         return mView
     }
-
 
     private fun setupRecyclerView() {
         mView.food_recyclerview.layoutManager = LinearLayoutManager(activity)
@@ -172,14 +191,15 @@ class FoodListFragment : Fragment() {
                 val key = el.child("key").value.toString()
                 val donation = el.child("toDonate").value.toString().toBoolean()
 
-                foodList.add(FoodItemModel(name, expirationDate, key,donation))
+                foodList.add(FoodItemModel(name, expirationDate, key, donation))
                 //Log.d("ITEM LIST", "$expirationDate $name $key")
             }
 
             //SORT the food items list by the expiration date
             val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
             foodList.sortBy { foodItemModel ->
-                LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter) }
+                LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter)
+            }
 
             setupRecyclerView()
 
@@ -189,19 +209,9 @@ class FoodListFragment : Fragment() {
 
     }
 
-
-    @SuppressLint("SimpleDateFormat")
-    private fun setDate() {
-        val dateTextView: TextView = mView.findViewById(R.id.displayDate_textView)
-        val sdf = SimpleDateFormat("d/M/yyyy")
-        val currentDateandTime = sdf.format(Date())
-        dateTextView.text = currentDateandTime
-    }
-
     private fun addBottomSheet() {
 
-        mAdapter.onItemClick = {
-                foodItemModel, position ->
+        mAdapter.onItemClick = { foodItemModel, position ->
 
 
             val key = foodItemModel.key
@@ -219,20 +229,21 @@ class FoodListFragment : Fragment() {
             nameEdit.doAfterTextChanged {
                 itemName = nameEdit.text.toString()
                 database
-                    .child("foodItems").child(userFirebaseUID).child(key).child("itemName").setValue(itemName)
+                    .child("foodItems").child(userFirebaseUID).child(key).child("itemName")
+                    .setValue(itemName)
                 //UPDATE RECYCLER VIEW ON ITEM CHANGE
-                mAdapter.updateItem(position,FoodItemModel(itemName, expiration, key,toDonate))
+                mAdapter.updateItem(position, FoodItemModel(itemName, expiration, key, toDonate))
             }
 
             //dialog.dismiss()    //for closing the bottomsheet
-
 
 
             //CALENDAR
             val datepicker = view.findViewById<DatePicker>(R.id.datePicker1)
             val cal = Calendar.getInstance()
             val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
-            cal.time = sdf.parse(foodItemModel.itemExpirationDate)      //works with this format: "14/08/2011"
+            cal.time =
+                sdf.parse(foodItemModel.itemExpirationDate)      //works with this format: "14/08/2011"
 
             datepicker.init(
                 cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
@@ -240,14 +251,14 @@ class FoodListFragment : Fragment() {
             )
             { _, year, month, day ->            //this adds code for when you select a date
                 //SAVE TO DATABASE
-                val month = month +1
+                val month = month + 1
                 expiration = "$day/$month/$year"
                 database
                     .child("foodItems").child(userFirebaseUID).child(key)
                     .child("itemExpirationDate").setValue(expiration)
 
                 //UPDATE RECYCLER VIEW ON ITEM CHANGE
-                mAdapter.updateItem(position,FoodItemModel(itemName, expiration, key, toDonate))
+                mAdapter.updateItem(position, FoodItemModel(itemName, expiration, key, toDonate))
             }
 
 
@@ -258,7 +269,8 @@ class FoodListFragment : Fragment() {
 
         }
     }
-    private fun changeToDonations(){
+
+    private fun changeToDonations() {
         mAdapter.onItemLongClick = { foodItemModel, position ->
 
             val key = foodItemModel.key
@@ -266,14 +278,14 @@ class FoodListFragment : Fragment() {
             var expiration = foodItemModel.itemExpirationDate
             var toDonate = foodItemModel.toDonate
 
-            if(!toDonate) {
+            if (!toDonate) {
 
                 toDonate = true
 
                 database
                     .child("foodItems").child(userFirebaseUID).child(key)
                     .child("toDonate").setValue(toDonate)
-                mAdapter.updateItem(position,FoodItemModel(itemName, expiration, key, toDonate))
+                mAdapter.updateItem(position, FoodItemModel(itemName, expiration, key, toDonate))
             } else {
 
                 toDonate = false
@@ -281,7 +293,7 @@ class FoodListFragment : Fragment() {
                 database
                     .child("foodItems").child(userFirebaseUID).child(key)
                     .child("toDonate").setValue(toDonate)
-                mAdapter.updateItem(position,FoodItemModel(itemName, expiration, key, toDonate))
+                mAdapter.updateItem(position, FoodItemModel(itemName, expiration, key, toDonate))
             }
 
         }

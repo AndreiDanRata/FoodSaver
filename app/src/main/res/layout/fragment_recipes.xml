@@ -6,7 +6,20 @@
     android:layout_height="match_parent"
     android:background="@color/lightGray"
     tools:context="ui.recipes.RecipesFragment">
-<!--    alt c, then alt b for comments-->
+
+
+    <TextView
+        android:id="@+id/empty_textView"
+        android:layout_width="275dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Your food list is empty or your items are already expired."
+        android:textSize="20dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recipes_recyclerview"

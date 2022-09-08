@@ -25,11 +25,12 @@ object Utils {
     fun fetchAPIData(barcode: String, context: Context): Thread {
         return Thread {
             val itemExpirationDate =
-                SimpleDateFormat("d/m/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
+                SimpleDateFormat("d/M/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
 
             try {
                 val url =
                     URL(Constants.BARCODE_BASE_URL + barcode + "?apikey=" + Constants.BARCODE_API_KEY)
+                //Log.d("FOODLIST_URL", url.toString())
                 val connection = url.openConnection() as HttpsURLConnection
                 //Log.d("FOODLIST_CONNECTION_RESPONSE_CODE", connection.responseCode.toString())
                 if (connection.responseCode == 200) {
