@@ -12,10 +12,17 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import com.example.finalyearproject.MainActivity
+import com.example.finalyearproject.models.NotificationsList
 
 
 class NotificationHelper(private val mContext: Context) {
     fun createNotification() {
+
+        val notList = NotificationsList()
+
+
+
+
         val intent = Intent(mContext, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val resultPendingIntent = PendingIntent.getActivity(
@@ -25,11 +32,26 @@ class NotificationHelper(private val mContext: Context) {
         )
         val mBuilder = NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID)
         mBuilder.setSmallIcon(R.drawable.ic_app_icon)
-        mBuilder.setContentTitle("Close to expiration!")
-            .setContentText("Some of the food items are about to expire: cook or donate them!")
-            .setAutoCancel(false)
-            .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
-            .setContentIntent(resultPendingIntent)
+        if(notList.getItemsInNotifications().isNotEmpty()) {
+            mBuilder.setContentTitle("Close to expiration!")
+                .setContentText("Some of the food items are about to expire: cook or donate them! +")
+                .setAutoCancel(false)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setContentIntent(resultPendingIntent)
+            //if there are some items show the first 2 in the notification
+                if( NotificationsList.Singleton.notificationsList.size > 2) {
+                    val item1 = NotificationsList.Singleton.notificationsList[0]
+                    val item2 = NotificationsList.Singleton.notificationsList[1]
+                    mBuilder.setStyle(NotificationCompat.BigTextStyle().bigText("You have ${item1.itemName} and ${item2.itemName}. You can find recipes in the app"))
+                }
+        } else {
+            mBuilder.setContentTitle("Your list is empty!")
+                .setContentText("Scan items in the app or using your Smart Kitchen Device")
+                .setAutoCancel(false)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setContentIntent(resultPendingIntent)
+        }
+
         val mNotificationManager =
             mContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

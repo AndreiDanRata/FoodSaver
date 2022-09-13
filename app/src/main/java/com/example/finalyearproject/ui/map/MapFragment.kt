@@ -1,42 +1,36 @@
 package com.example.finalyearproject.ui.map
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.Typeface
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.finalyearproject.R
 import com.example.finalyearproject.adapters.InfoWindowMapAdapter
 import com.example.finalyearproject.models.FoodItemModel
+import com.example.finalyearproject.util.Utils
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -45,28 +39,32 @@ import java.util.*
 
 
 //Live location works on android devices/ not the android studio emulator
-class MapFragment : Fragment(), OnMapReadyCallback {
+class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener{
 
     private var database: DatabaseReference =
         Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private var userFirebaseUID: String = FirebaseAuth.getInstance().currentUser!!.uid
+    private var userFirebaseEmail: String = FirebaseAuth.getInstance().currentUser!!.email!!
 
     private lateinit var mMap: GoogleMap
 
     private lateinit var mView: View
+    private lateinit var reserveButton: Button
 
     private var toDonate: MutableList<FoodItemModel> = ArrayList<FoodItemModel>()
 
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private val permissionId = 2
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-
     }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,78 +72,30 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ): View? {
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_map, container, false)
+        reserveButton = mView.findViewById(R.id.reserve_button)
+
         setHomeLocation()
         showFreeFood()
+        Thread.sleep(1500)
 
-        // Obtain the SupportMapFragment. childFragmentManager cuz we are in a fragment not an activity
-        val mapFragment = childFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        // Obtain the SupportMapFragment. childFragmentManager because this is in a fragment not an activity
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
         return mView
-
-
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
 
-
         mMap = googleMap
-
         //Custom infoWindow
-        mMap.setInfoWindowAdapter(InfoWindowMapAdapter(requireContext()))
-
-
-        // Add a marker in Sydney and move the camera
         getCurrentLocation()
-
+        mMap.setInfoWindowAdapter(InfoWindowMapAdapter(requireContext()))
+        mMap.setOnMarkerClickListener(this)
+        mMap.setOnMapClickListener(this)
     }
 
-
-    private fun isLocationEnabled(): Boolean {
-        val locationManager: LocationManager =
-            context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER
-        )
-    }
-
-    /**
-     * Function used to request Camera Permission.
-     * If permission is granted, it will initialize the camera preview.
-     * If not,it will raise an alert.
-     */
-    private fun checkLocationPermissions(): Boolean {
-        if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            return true
-        }
-        return false
-    }
-
-    /**
-     * Function used after the user grants/denies permission.
-     */
-    private fun requestLocationPermissions() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ),
-            permissionId
-        )
-    }
-
-    @SuppressLint("MissingSuperCall")
+    @Deprecated("Deprecated in Java")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -153,7 +103,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     ) {
         if (requestCode == permissionId) {
             if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                Log.d("MAP_FRAGMENT_CHECK_LOCATION", "on permission granted")
                 getCurrentLocation()
+
+            } else {
+                Toast.makeText(context, "Permission denied!", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -161,93 +115,201 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private fun getCurrentLocation() {
-        if (checkLocationPermissions()) {
-            if (isLocationEnabled()) {
+        if (Utils.checkLocationPermissions(requireContext())) {
+            if (Utils.isLocationEnabled(requireContext())) {
                 mFusedLocationClient.lastLocation.addOnCompleteListener(requireActivity()) { task ->
                     val location: Location? = task.result
                     if (location != null) {
-                        val geocoder = Geocoder(activity, Locale.getDefault())
-                        val list: List<Address> =
-                            geocoder.getFromLocation(location.latitude, location.longitude, 1)
-                        Log.d("MY_LOCATION", location.latitude.toString())   //THIS WORKS
-                        /*myCords.long = list[0].longitude
-                        myCords.lat = list[0].latitude*/
+
+                        Log.d("MAP_FRAGMENT_MY_LOCATION", "long:" +location.latitude.toString() + " lat:" + location.latitude.toString())
                         val myPos = LatLng(location.latitude, location.longitude)
-                        mMap.addMarker(
-                            MarkerOptions().position(myPos).title("My Location")
+                        val mmarker = mMap.addMarker(
+                            MarkerOptions()
+                                .position(myPos)
+                                .title("My Current Location")
+                                .snippet("\nLook at other markers to \nfind free food around you")
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icteest))
                         )
+                        mmarker?.tag = userFirebaseUID
                         mMap.moveCamera(
                             CameraUpdateFactory.newLatLngZoom(
                                 myPos,
                                 15f
                             )
                         )
-                        /*  mainBinding.apply {
-                              tvLatitude.text = "Latitude\n${list[0].latitude}"
-                              tvLongitude.text = "Longitude\n${list[0].longitude}"
-                              tvCountryName.text = "Country Name\n${list[0].countryName}"
-                              tvLocality.text = "Locality\n${list[0].locality}"
-                              tvAddress.text = "Address\n${list[0].getAddressLine(0)}"
-                          }*/
                     }
                 }
             } else {
                 Toast.makeText(activity, "Please turn on location", Toast.LENGTH_LONG).show()
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+
                 startActivity(intent)
             }
         } else {
-            requestLocationPermissions()
+            Utils.requestLocationPermissions(requireActivity(),permissionId)
         }
 
     }
 
     //for each user that has his location set, show adress and free items
+    @SuppressLint("SetTextI18n")
     private fun showFreeFood() {
 
         database.child("locations").get().addOnSuccessListener {
 
             for (el in it.children) {//for each user with a location
-                //lat, long
+                //lat, long + get adress using geocoder
                 val pos = LatLng(
                     el.child("latitude").getValue(Double::class.java)!!,
-                    el.child("longitude").getValue(Double::class.java)!!
-                )
+                    el.child("longitude").getValue(Double::class.java)!!)
+
+                val geocoder = Geocoder(activity, Locale.getDefault())
+                val adresses: List<Address> = geocoder.getFromLocation(pos.latitude, pos.longitude, 1)
+                var address = ""
+                if(adresses[0].subThoroughfare != null && adresses[0].thoroughfare != null){
+                    address = "at " + adresses[0].subThoroughfare + " " + adresses[0].thoroughfare
+                }
 
                 database.child("foodItems").child(el.key.toString()).get()  //for each user's food list
                     .addOnSuccessListener { foodList ->
                         for (item in foodList.children) {
                             if (item.child("toDonate").value == true) {
-                                val expirationDate =
-                                    item.child("itemExpirationDate").value.toString()
+                                val expirationDate = item.child("itemExpirationDate").value.toString()
                                 val name = item.child("itemName").value.toString()
                                 val key = item.child("key").value.toString()
-                                val donation = item.child("toDonate").value.toString().toBoolean()
-                                toDonate.add(FoodItemModel(name, expirationDate, key, donation))
+                                toDonate.add(FoodItemModel(name, expirationDate, key, true))
                             }
                         }
+                        Log.d("MAP_FRAGMENT_USER_ID_ONCLICKMARKER", "toDonateSize:${toDonate.size} userfirebase: $userFirebaseUID marker user: ${ el.key.toString()}")
+                        //if there is something to donate- add marker with button + all the data
+                        // THE MARKER IS NOT SHOWN IF THE USER HAS NO ITEMS TO DONATE OR THE ITEMS TO DONATE ARE ALREADY EXPIRED
+                        if(toDonate.size != 0 && (userFirebaseUID != el.key.toString())) {
+                            var info: String = ""
+                            for (item in toDonate) {
+                                info = info + "\n" + item.itemName + " : " + item.itemExpirationDate
+                            }
 
-                        Log.d("LOCATION_DATA", toDonate.toString())
-                        var info: String = ""
-                        for (item in toDonate) {
-                            info = info + "\n" + item.itemName + " : " + item.itemExpirationDate
+                            val mmarker = mMap.addMarker(
+                                MarkerOptions()
+                                    .position(pos)
+                                    .title("Free items $address:")
+                                    .snippet(info)
+
+                            )
+                            mmarker?.tag = el.key.toString()
+                            toDonate.clear()
                         }
-
-                        mMap.addMarker(
-                            MarkerOptions().position(pos)
-                                .title("Free items:")  ////todo display adress instead of title???
-                                .snippet(info)
-                        )
-                        toDonate.clear()
                     }
-
-
             }
-
         }.addOnFailureListener {
             Log.e("firebase", "Error getting data", it)
         }
+    }
 
+    /** Called when the user clicks a marker.  */
+    override fun onMarkerClick(marker: Marker): Boolean {
+
+        // Retrieve the data from the marker.
+        val userId = marker.tag as? String
+        Log.d("MAP_FRAGMENT_USER_ID_ONCLICKMARKER", userId!!)
+
+        marker.showInfoWindow()
+            if(userId == userFirebaseUID) {
+                reserveButton.visibility = View.INVISIBLE
+            } else {
+                reserveButton.visibility = View.VISIBLE
+                database.child("locations").child(userId!!).get()
+                    .addOnSuccessListener { userMarker ->
+
+                        //Decides what to show to the user: free to reserve or reserved bu somebody else
+                        if (userMarker.child("reservedHour").exists()) {
+                            val currentTime = Calendar.getInstance()
+                            val hour = currentTime[Calendar.HOUR_OF_DAY]
+                            val minute = currentTime[Calendar.MINUTE]
+                            val resHour = userMarker.child("reservedHour").value.toString()
+                            val resMinute = userMarker.child("reservedMinute").value.toString()
+                            Log.d("MAP_FRAGMENT_RESERVE", "$resHour  $resMinute")
+
+                            //if reservation is still valid
+                            if ((resHour.toInt() * 60 + resMinute.toInt()) >= hour * 60 + minute) {
+
+                                val reservedBy =
+                                    userMarker.child("reservedBy").value.toString()   //if reserved by somebody else
+                                if (reservedBy != userFirebaseEmail) {
+                                    if (resMinute.toInt() <= 9)
+                                        reserveButton.text = "Try to reserve after $resHour:0$resMinute"
+                                    else
+                                        reserveButton.text = "Try to reserve after $resHour:$resMinute"
+
+                                } else {                                                       //if reserved by this account
+                                    if (resMinute.toInt() <= 9)
+                                        reserveButton.text = "Pick up items before $resHour:0$resMinute. Click to cancel"
+                                    else
+                                        reserveButton.text = "Pick up items before $resHour:$resMinute. Click to cancel"
+                                    onClickReserveNow(userMarker.key.toString())
+                                }
+                            } else {                                                        //if free to reserve & time exists
+                                reserveButton.text = "Reserve now"
+                                onClickReserveNow(userMarker.key.toString())
+                            }
+                        } else {                                                            //if free to reserve & no time exists
+                            reserveButton.text = "Reserve now"
+                            onClickReserveNow(userMarker.key.toString())
+                        }
+                    }
+            }
+
+        // Return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false
+    }
+
+    override fun onMapClick(p0: LatLng) {
+        reserveButton.visibility =  View.INVISIBLE
+    }
+
+    private fun onClickReserveNow(userId : String) {
+
+        reserveButton.setOnClickListener {
+            if( reserveButton.text == "Reserve now") {
+                Log.d("RESERVE_DEADLINE", "reserve now")
+
+                val currentTime = Calendar.getInstance()
+                val hour = currentTime[Calendar.HOUR_OF_DAY]+1
+                val minute = currentTime[Calendar.MINUTE]
+
+                onClickReserveNow(userId)
+                database.child("locations").child(userId).child("reservedHour").setValue(hour)
+                database.child("locations").child(userId).child("reservedMinute").setValue(minute)
+                database.child("locations").child(userId).child("reservedBy").setValue(userFirebaseEmail)
+
+
+                if(minute<=9)
+                    reserveButton.text = "Pick up items before $hour:0$minute. Click to cancel"
+                else {
+
+                    reserveButton.text = "Pick up items before $hour:$minute. Click to cancel"
+                }
+
+            } else if(reserveButton.text.contains("Try", ignoreCase = true)){
+                reserveButton.setOnClickListener {
+                    val snackbar = Snackbar
+                        .make(requireContext(),requireView(), "Somebody else book these items. Wait until later and try again.", Snackbar.LENGTH_LONG)
+                    snackbar.show()
+                }
+            } else {
+                Log.d("RESERVE_DEADLINE", "cancel")
+
+                reserveButton.text = "Reserve now"
+                database.child("locations").child(userId).child("reservedHour").removeValue()
+                database.child("locations").child(userId).child("reservedMinute").removeValue()
+                database.child("locations").child(userId).child("reservedBy").removeValue()
+                onClickReserveNow(userId)
+
+            }
+            Log.d("RESERVE_DEADLINE", "button clicked")
+        }
     }
 
 
@@ -261,7 +323,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 val location: Location? = task.result
                 if (location != null) {
                     val geocoder = Geocoder(activity, Locale.getDefault())
-                    val list: List<Address> = //TODO DISPLAY ADRESS IN SETTINGS AS HOME LOCATION
+                    val list: List<Address> =
                         geocoder.getFromLocation(location.latitude, location.longitude, 1)
 
                     database
@@ -279,12 +341,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                     ).show()
                 }
             }
-
-
         }
-
     }
-
-
 }
 

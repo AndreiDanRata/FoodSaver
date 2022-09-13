@@ -1,6 +1,6 @@
 package com.example.finalyearproject.adapters
 
-import android.graphics.Color
+import android.os.CountDownTimer
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +13,6 @@ import com.example.finalyearproject.models.FoodItemModel
 import com.example.finalyearproject.ui.foodlist.FoodListFragment
 import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.foodlist_row_layout.view.*
-
-// todo implement the other classes from the tutorial for recycler in a fragment  https://medium.com/inside-ppl-b7/recyclerview-inside-fragment-with-android-studio-680cbed59d84
 
 
 class FoodListRecyclerAdapter(
@@ -29,20 +27,15 @@ class FoodListRecyclerAdapter(
     var onItemLongClick: ((FoodItemModel, Int) -> Unit)? = null
 
     private lateinit var delete_btn: Button
+    private var dismissed: Boolean = true
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         var rowView = itemView
-        var name: TextView
-        var date: TextView
+        var name: TextView = rowView.findViewById(R.id.item_name_textView)
+        var date: TextView = rowView.findViewById(R.id.item_expiration_textView)
 
 
-        init {
-            name = rowView.findViewById(R.id.item_name_textView)
-            date = rowView.findViewById(R.id.item_expiration_textView)
-
-
-        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -56,11 +49,16 @@ class FoodListRecyclerAdapter(
         val foodItemModel = list[position]
 
         viewHolder.name.text = foodItemModel.itemName
-        viewHolder.date.text = foodItemModel.itemExpirationDate
         viewHolder.rowView.tag = foodItemModel.key   //TAG NEEDED TO DELETE THE DATA FROM THE DATABASE
+        if(foodItemModel.itemExpirationDate == "11/11/2000") {
+            viewHolder.date.text = "Tap to add"
+        }else {
+            viewHolder.date.text = foodItemModel.itemExpirationDate
+        }
+
 
         //DONATIONS
-        if(foodItemModel.toDonate == true) {
+        if(foodItemModel.toDonate) {
             viewHolder.rowView.setBackgroundColor(ContextCompat.getColor(fragment.requireContext(), R.color.green))
         } else {
             viewHolder.rowView.setBackgroundColor(ContextCompat.getColor(fragment.requireContext(), R.color.white))
@@ -69,13 +67,55 @@ class FoodListRecyclerAdapter(
         //deletes selected row after the recyclerview is refreshed
         delete_btn = viewHolder.rowView.findViewById(R.id.delete_button)
         delete_btn.setOnClickListener {
-            viewHolder.rowView.delete_button.setBackgroundColor(Color.RED)//TODO CHANGE IT TO AN X SIGN AND MAKE IT VISIBLE FOR 3 SECONDS
-            val key = viewHolder.rowView.tag
+
+            viewHolder.rowView.item_normal.visibility = View.GONE
+            viewHolder.rowView.item_deleted.visibility = View.VISIBLE
+
+
+            /*val initialTime = System.currentTimeMillis()
+            var now = System.currentTimeMillis()
+            while (now - initialTime < 4000) {
+                now = System.currentTimeMillis()
+            }*/
+            val timer = object: CountDownTimer(5000, 4000) {
+                override fun onTick(millisUntilFinished: Long) {
+                }
+
+                override fun onFinish() {
+                    if(dismissed) {
+                        val key = viewHolder.rowView.tag
+                        database.child("foodItems").child(userFirebaseUID).child(key.toString()).removeValue()
+                        list.removeAt(position)
+                        notifyItemRemoved(position)
+                        notifyItemRangeChanged(position,list.size)
+                    } else {
+                        viewHolder.rowView.item_normal.visibility = View.VISIBLE
+                        viewHolder.rowView.item_deleted.visibility = View.GONE
+                    }
+                }
+            }
+            timer.start()
+
+
+
+
+
+
+
+
+           /* val key = viewHolder.rowView.tag
             database.child("foodItems").child(userFirebaseUID).child(key.toString()).removeValue()
             list.removeAt(position)
             notifyItemRemoved(position)
             notifyItemRangeChanged(position,list.size)
-            //Eror has to do something with the animations of the delete button
+            //Error has to do something with the animations of the delete button*/
+        }
+
+        val undoButton: Button = viewHolder.rowView.findViewById(R.id.undo_button)
+        undoButton.setOnClickListener {
+            dismissed = false
+            viewHolder.rowView.item_normal.visibility = View.VISIBLE
+            viewHolder.rowView.item_deleted.visibility = View.GONE
         }
 
 
@@ -93,6 +133,28 @@ class FoodListRecyclerAdapter(
 
 
     }
+
+   /* fun onItemRemove(viewHolder: RecyclerView.ViewHolder, recyclerView: RecyclerView) {
+
+        dismissed = true
+        val snackbar = Snackbar
+            .make(recyclerView, "ITEM REMOVED", Snackbar.LENGTH_LONG)
+            .setAction("UNDO") {
+                dismissed = false
+            }
+            .addCallback(object : Snackbar.Callback() {
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    super.onDismissed(transientBottomBar, event);
+                    if(dismissed) {
+                        val key = viewHolder.rowView.tag
+                        database.child("foodItems").child(userFirebaseUID).child(key.toString()).removeValue()
+                        list.removeAt(position)
+                        notifyItemRemoved(position)
+                        notifyItemRangeChanged(position,list.size)
+                    }
+                }
+            }).show()
+    }*/
 
     public fun updateItem(updateIndex: Int, item: FoodItemModel) {
         list[updateIndex] = item

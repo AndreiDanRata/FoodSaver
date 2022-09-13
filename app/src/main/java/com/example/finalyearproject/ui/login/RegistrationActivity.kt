@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View  //check with the other import for view line14
 import android.view.inputmethod.InputMethodManager
@@ -22,6 +23,8 @@ class RegistrationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
 
+        supportActionBar?.hide()
+
         auth = FirebaseAuth.getInstance()
         reg_button.setOnClickListener {
             registerUser()
@@ -30,18 +33,29 @@ class RegistrationActivity : AppCompatActivity() {
 
     fun registerUser() {
 
+
         val email: String = findViewById<EditText>(R.id.email_edit_text).text.toString()
         val password: String = findViewById<EditText>(R.id.password_edit_text).text.toString()
-
-        auth.createUserWithEmailAndPassword(trim(email), password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
-                } else {
-                    Toast.makeText(this, "An error occurred. Check your password is at least 6 characters", Toast.LENGTH_SHORT).show()
+        val repassword: String = findViewById<EditText>(R.id.re_password_edit_text).text.toString()
+        Log.d("REGISTRATION", "$email $password")
+        if(email == "") {
+            Toast.makeText(this, "The email is empty!", Toast.LENGTH_SHORT).show()
+        } else if(password != repassword) {
+            Toast.makeText(this, "The passwords do not match!", Toast.LENGTH_SHORT).show()
+        } else if(password.length < 6) {
+            Toast.makeText(this, "The passwords must be at least 6 characters long!", Toast.LENGTH_SHORT).show()
+        }
+        else {
+            auth.createUserWithEmailAndPassword(trim(email), password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
+                    } else {
+                        Toast.makeText(this, "The email address is not valid or is linked to another account!", Toast.LENGTH_LONG).show()
+                    }
                 }
-            }
+        }
     }
 
     //Removes whitespaces from the beginning and from the end

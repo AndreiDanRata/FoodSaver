@@ -1,9 +1,14 @@
 package com.example.finalyearproject.util
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
+import android.location.LocationManager
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.example.finalyearproject.models.BarcodeApiRequest
 import com.example.finalyearproject.models.FoodItemModel
 import com.google.firebase.auth.FirebaseAuth
@@ -24,8 +29,8 @@ object Utils {
 
     fun fetchAPIData(barcode: String, context: Context): Thread {
         return Thread {
-            val itemExpirationDate =
-                SimpleDateFormat("d/M/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
+            val itemExpirationDate = "11/11/2000"
+               // SimpleDateFormat("d/M/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
 
             try {
                 val url =
@@ -84,6 +89,53 @@ object Utils {
             sb.append(alphabet[index])
         }
         return sb.toString()
+    }
+
+
+
+
+
+    //Enabling location
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager: LocationManager =
+            context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER
+        )
+    }
+
+    /**
+     * Function used to request Camera Permission.
+     * If permission is granted, it will initialize the camera preview.
+     * If not,it will raise an alert.
+     */
+    fun checkLocationPermissions(context: Context): Boolean {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Function used after the user grants/denies permission.
+     */
+    fun requestLocationPermissions(activity: Activity, permissionId: Int) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            permissionId
+        )
     }
 
 }

@@ -15,6 +15,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.finalyearproject.models.NotificationsList
 import com.example.finalyearproject.util.NotificationReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
@@ -24,11 +25,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        myAlarm()
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         navController = findNavController(R.id.navHostFragment)
@@ -42,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setupWithNavController(navController)
 
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        myAlarm()
 
     }
 
@@ -57,8 +60,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun myAlarm() {
         val calendar = Calendar.getInstance()
-        calendar[Calendar.HOUR_OF_DAY] = 22
-        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.HOUR_OF_DAY] = 12
+        calendar[Calendar.MINUTE] =0
         calendar[Calendar.SECOND] = 0
         calendar.set(Calendar.SECOND, 0)
         if (calendar.time < Date()){

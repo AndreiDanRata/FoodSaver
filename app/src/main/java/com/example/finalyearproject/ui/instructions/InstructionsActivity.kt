@@ -28,11 +28,13 @@ class InstructionsActivity : AppCompatActivity() {
         var url = bundle!!.getString("url", "Default")
 
         if (!url.startsWith("http://") && !url.startsWith("https://")){
-            url = "http://" + url;
+            url = "http://$url";
         }
 
         webView.webViewClient = object : WebViewClient() {}
         if (url != null) {
+            webView.settings.allowFileAccess = true
+            webView.settings.domStorageEnabled = true;
             webView.loadUrl(url)
         }
     }

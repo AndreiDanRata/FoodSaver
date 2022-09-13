@@ -6,26 +6,62 @@
     android:layout_height="match_parent"
     tools:context=".ui.settings.SettingsFragment">
 
+
+
     <ImageView
         android:id="@+id/Qrcode_imageView"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="QR Code" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/qrDescription_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="add extras: set location here(for map) + manage people in your group"
+        android:layout_marginTop="-40dp"
+        android:gravity="center"
+        android:text="Scan this code to connect to a FoodSaver device."
+        app:layout_constraintEnd_toEndOf="@+id/Qrcode_imageView"
+        app:layout_constraintStart_toStartOf="@+id/Qrcode_imageView"
+        app:layout_constraintTop_toBottomOf="@+id/Qrcode_imageView" />
+
+    <TextView
+        android:id="@+id/settings1_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="Your home address is:"
+        app:layout_constraintBottom_toTopOf="@+id/settings2_textView"
+        app:layout_constraintEnd_toEndOf="@+id/Qrcode_imageView"
+        app:layout_constraintStart_toStartOf="@+id/Qrcode_imageView" />
+
+
+    <TextView
+        android:id="@+id/settings2_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/lato_bold"
+        android:text="No home address has been set."
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/Qrcode_imageView"
         app:layout_constraintStart_toStartOf="@+id/Qrcode_imageView"
         app:layout_constraintTop_toBottomOf="@+id/Qrcode_imageView" />
+
+    <TextView
+        android:id="@+id/settings3_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Tap the house icon in the map screen to change \n your home location to your current location."
+        app:layout_constraintEnd_toEndOf="@+id/Qrcode_imageView"
+        app:layout_constraintStart_toStartOf="@+id/Qrcode_imageView"
+        app:layout_constraintTop_toBottomOf="@+id/settings2_textView" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -36,6 +36,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         android:hint="Expiration Date"
+        android:focusableInTouchMode="false"
+        android:inputType="date"
         app:layout_constraintBottom_toTopOf="@+id/Dtb_Button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -46,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
+        android:tint="@color/colorPrimary"
         android:src="@drawable/ic_baseline_camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

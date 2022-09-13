@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.finalyearproject.MainActivity
+import com.example.finalyearproject.models.NotificationsList
 import java.util.*
 
 
@@ -26,6 +27,7 @@ class NotificationReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_IMMUTABLE
         )
         val alarmManager = context!!.getSystemService(ALARM_SERVICE) as AlarmManager
+
         alarmManager.setAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             System.currentTimeMillis()+8*60*60*1000,  //Notification sent every 8 hours

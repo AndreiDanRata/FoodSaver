@@ -23,6 +23,8 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        supportActionBar?.hide()
+
         auth = FirebaseAuth.getInstance()
 
         val reg_btn: Button = findViewById(R.id.reg_button)
@@ -44,11 +46,11 @@ class LoginActivity : AppCompatActivity() {
         var password: String = findViewById<EditText>(R.id.login_password_edit_text).text.toString()
         Log.d("EMAIL_LOGIN",email)
         Log.d("EMAIL_LOGIN",password)
-        if(email == "") {        //TODO ADD HERE INPUT SANITATION: EMAIL FORMAT + PASSWORD MIN 6 CHARS
+        if(email == "") {
             Toast.makeText(this, "The email can not be empty", Toast.LENGTH_SHORT).show()
             check = false
         }
-        if(password == "") {        //TODO ADD HERE INPUT SANITATION: EMAIL FORMAT + PASSWORD MIN 6 CHARS
+        if(password == "") {
             Toast.makeText(this, "The password can not be empty", Toast.LENGTH_SHORT).show()
             check = false
         }
