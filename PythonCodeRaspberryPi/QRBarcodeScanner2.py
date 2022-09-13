@@ -62,38 +62,75 @@ class MyScript:
         file = open("userFirebase.txt", "w")
         file.write(userFirebase)
     def addItemToDatabase(barcodeData):
-        play(soundBeep)
-            #check the barcode details in the api
-        name = MyScript.GetBarcodeApiData(barcodeData)
-        if name != 0:
-            key =  MyScript.GetRandomKey()
-            expirationDate = date.today().strftime("%-d/%-m/%Y")    
-            print(barcodeData)
-            #Add items to firebase database
-            db.child("foodItems").child(userFirebase).child(key).child("itemName").set(name)
-            db.child("foodItems").child(userFirebase).child(key).child("itemExpirationDate").set(expirationDate)
+        key =  MyScript.GetRandomKey()
+        #if it is a qr code with the requested format
+        if("Name/Expiration:" in barcodeData):
+            play(soundBeep)
+            splitData = barcodeData.split(sep="/+/", maxsplit=-1)
+            db.child("foodItems").child(userFirebase).child(key).child("itemName").set(splitData[1])
+            db.child("foodItems").child(userFirebase).child(key).child("itemExpirationDate").set(splitData[2])
             db.child("foodItems").child(userFirebase).child(key).child("key").set(key)
             db.child("foodItems").child(userFirebase).child(key).child("toDonate").set(False)
+        #if it is a barcode
+        elif(barcodeData.isnumeric() == True):
+            name = MyScript.GetBarcodeApiData(barcodeData)
+            if name != 0:
+                play(soundBeep)
+                #expirationDate = date.today().strftime("%-d/%-m/%Y")
+                expirationDate = "11/11/2000"    
+                print(barcodeData)
+                #Add items to firebase database
+                db.child("foodItems").child(userFirebase).child(key).child("itemName").set(name)
+                db.child("foodItems").child(userFirebase).child(key).child("itemExpirationDate").set(expirationDate)
+                db.child("foodItems").child(userFirebase).child(key).child("key").set(key)
+                db.child("foodItems").child(userFirebase).child(key).child("toDonate").set(False)
+                print("successfuly added to database")
+                
+            else:
+                play(soundNotFound) #add sound for item not found in the api
+        else: 
+            play(soundNotFound)#add sound for item not found in the api
     def removeItemFromDatabase(barcodeData):
-        play(soundBeep)
-           #check the barcode details in the api
-        name = MyScript.GetBarcodeApiData(barcodeData)
-        if name != 0:
-            items=db.child("foodItems").child(userFirebase).order_by_child("itemName").equal_to(name).get()  #gets a response object
-
-            shortestExpDateKey = ""
-            shortestExpDate = datetime.datetime(2025,5,5)
+        
+        if("Name/Expiration:" in barcodeData):
+            play(soundBeep)
+            splitData = barcodeData.split(sep="/+/", maxsplit=-1)
+            items = db.child("foodItems").child(userFirebase).order_by_child("itemName").equal_to(splitData[1]).get()  #gets a response object
+            date = splitData[2]
+            itemKey = ""
             for item in items.each():
                 itemVal=item.val() #the value
-                date = datetime.datetime.strptime(itemVal['itemExpirationDate'], '%-d/%-m/%Y')
-                if(date<shortestExpDate):  #the more recent date has bigger value
-                    shortestExpDate = date
-                    shortestExpDateKey = item.key()
-            db.child("foodItems").child(userFirebase).child(shortestExpDateKey).remove()
-            #print(db.child("foodItems").child(userFirebase).child(shortestExpDateKey).get().val())
+                if(date == itemVal['itemExpirationDate']):  #the more recent date has bigger value
+                    itemKey = item.key()
+                    break
+            if(itemKey != ""):
+                print("The element (qr code) was removed from the database ")
+                db.child("foodItems").child(userFirebase).child(itemKey).remove()
+        #if it is a barcode
+        elif(barcodeData.isnumeric() == True):
+            name = MyScript.GetBarcodeApiData(barcodeData)
+            if name != 0:
+                items=db.child("foodItems").child(userFirebase).order_by_child("itemName").equal_to(name).get()  #gets a response object
+                play(soundBeep)
+                shortestExpDateKey = ""
+                shortestExpDate = datetime.datetime(2025,5,5)
+                for item in items.each():
+                    itemVal=item.val() #the value
+                    date = datetime.datetime.strptime(itemVal['itemExpirationDate'], '%d/%M/%Y')
+                    if(date<shortestExpDate):  #the more recent date has bigger value
+                        shortestExpDate = date
+                        shortestExpDateKey = item.key()
+                if(shortestExpDateKey != ""):
+                    print("The element (barcode) was removed from the database ")
+                    db.child("foodItems").child(userFirebase).child(shortestExpDateKey).remove()
+                #print(db.child("foodItems").child(userFirebase).child(shortestExpDateKey).get().val())
+            else:
+                play(soundNotFound) #add sound for item not found in the api
+        else: 
+            play(soundNotFound)#add sound for item not found in the api
     class camThread(threading.Thread):
-        def __init__(self, previewName, camID):
-            threading.Thread.__init__(self)
+        def _init_(self, previewName, camID):
+            threading.Thread._init_(self)
             self.previewName = previewName
             self.camID = camID
         def run(self):
@@ -107,8 +144,8 @@ class MyScript:
     def camAddItems(previewName, camID):
         cv2.namedWindow(previewName)
         cam = cv2.VideoCapture(0, apiPreference=cv2.CAP_V4L2)
-        cam.set(cv2.CAP_PROP_FRAME_WIDTH,500)
-        cam.set(cv2.CAP_PROP_FRAME_HEIGHT,375)
+        cam.set(cv2.CAP_PROP_FRAME_WIDTH,550)
+        cam.set(cv2.CAP_PROP_FRAME_HEIGHT,310)
         cam.set(cv2.CAP_PROP_FPS,15)
 
         time.sleep(2.0)
@@ -125,10 +162,9 @@ class MyScript:
             cv2.imshow(previewName, frame)
             rval, frame = cam.read()
 
-            width = int(frame.shape[1] * 1)
-            height = int(frame.shape[0] *1)
-            # print(str(width) + "   " + str(height))
-            frame = cv2.resize(frame, (width, height))
+            # width = int(frame.shape[1] * 1)
+            # height = int(frame.shape[0] *1)
+            # frame = cv2.resize(frame, (width, height))
             
             detections = pyzbar.decode(frame)                     
         
@@ -139,7 +175,7 @@ class MyScript:
                 barcodeData = barcode.data.decode("utf-8")
                 barcodeType = barcode.type        
                 #authentificate user
-                if "userFirebaseUID:" in barcodeData:
+                if ("userFirebaseUID:" in barcodeData) and (barcodeData == lastBarcodeData):
                     MyScript.loginUser(barcodeData)
                 #if the last 2 scanned codes are the same then add the item to the database(lowers misidentifications of the barcode)
                 elif barcodeData  != lastBarcodeDataAdded and barcodeData == lastBarcodeData:
@@ -160,8 +196,8 @@ class MyScript:
     def camrRemoveItems(previewName, camID):
         cv2.namedWindow(previewName)
         cam = cv2.VideoCapture(2, apiPreference=cv2.CAP_V4L2)
-        cam.set(cv2.CAP_PROP_FRAME_WIDTH,500)
-        cam.set(cv2.CAP_PROP_FRAME_HEIGHT,375)
+        cam.set(cv2.CAP_PROP_FRAME_WIDTH,550)
+        cam.set(cv2.CAP_PROP_FRAME_HEIGHT,310)
         cam.set(cv2.CAP_PROP_FPS,15)
 
         time.sleep(2.0)
@@ -178,11 +214,13 @@ class MyScript:
             cv2.imshow(previewName, frame)
             rval, frame = cam.read()
         
-            width = int(frame.shape[1] * 1)
-            height = int(frame.shape[0] * 1)
-            # print(str(width) + "   " + str(height))
-            frame = cv2.resize(frame, (width, height))
+            # width = int(frame.shape[1] * 1)
+            # height = int(frame.shape[0] *1)
+            # frame = cv2.resize(frame, (width, height))
             
+
+
+
             # #IMPORVE EFFICIENCY
             # grey = cv2.cvtColor(cam, cv2.COLOR_BGR2GRAY)
             # _, thresh =cv2.threshold(grey,120,255,cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
@@ -222,7 +260,7 @@ class MyScript:
                 barcodeType = barcode.type
                 
                 #authentificate user
-                if "userFirebaseUID:" in barcodeData:
+                if ("userFirebaseUID:" in barcodeData) and (barcodeData == lastBarcodeData):
                     MyScript.loginUser(barcodeData)
                 #if the last 2 scanned codes are the same then add the item to the database(lowers misidentifications of the barcode)
                 elif barcodeData  != lastBarcodeDataRemoved and barcodeData == lastBarcodeData:
@@ -261,7 +299,7 @@ pyrebase.pyrebase.quote = noquote
 soundLink = AudioSegment.from_mp3("LinkToAccount.mp3")
 soundBeep = AudioSegment.from_mp3("Barcode-scanner-beep-sound.mp3")
 soundLoggedIn = AudioSegment.from_mp3("UserLogged.mp3")
-
+soundNotFound = AudioSegment.from_mp3("ItemNotFound.mp3")
 #user authentification
 fle = Path('userFirebase.txt')
 fle.touch(exist_ok=True)  #if file does not exist, then create it.... otherwise do nothing
