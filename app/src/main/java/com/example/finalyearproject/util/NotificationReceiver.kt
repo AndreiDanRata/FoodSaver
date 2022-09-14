@@ -35,7 +35,7 @@ class NotificationReceiver : BroadcastReceiver() {
             pendingIntent
         )
         Log.d("NOTIFICATIONRECIVER", "NOTIFICATION RECEIVED")
-        val notificationHelper = NotificationHelper(context!!)
+        val notificationHelper = NotificationHelper(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             notificationHelper.createNotification()
         }

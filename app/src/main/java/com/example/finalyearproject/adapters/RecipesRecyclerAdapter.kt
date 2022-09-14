@@ -27,39 +27,6 @@ class RecipesRecyclerAdapter(
 ) : RecyclerView.Adapter<RecipesRecyclerAdapter.MyViewHolder>() {
 
 
-    /*inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        var rowView = itemView
-        var title: TextView = rowView.findViewById(R.id.item_name_textView)
-        var sumarry: TextView = rowView.findViewById(R.id.item_expiration_textView)
-
-
-    }
-
-    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
-        val v = LayoutInflater.from(viewGroup.context)
-            .inflate(R.layout.foodlist_row_layout, viewGroup, false)
-        return ViewHolder(v)
-    }
-
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-
-
-        val recipeModel = list[position]
-
-        viewHolder.title.text = recipeModel.title
-        viewHolder.sumarry.text = recipeModel.summary
-        viewHolder.image.text = recipeModel.image
-        viewHolder.aggregatelikes.text = recipeModel.aggregateLikes
-
-    }
-
-    override fun getItemCount(): Int {
-        return list.size
-    }*/
-
-    //private var recipes = emptyList<RecipeModel>()
-
 
     var onItemClick: ((RecipeModel) -> Unit)? = null
 
@@ -85,16 +52,16 @@ class RecipesRecyclerAdapter(
         return MyViewHolder.from(parent)
     }
 
-    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: MyViewHolder, position: Int) {
 
         val currentRecipe = list[position]
 
-        holder.itemView.setOnClickListener {
+        viewHolder.itemView.setOnClickListener {
             onItemClick?.invoke(currentRecipe)
 
         }
 
-        holder.bind(currentRecipe)
+        viewHolder.bind(currentRecipe)
     }
 
     override fun getItemCount(): Int {

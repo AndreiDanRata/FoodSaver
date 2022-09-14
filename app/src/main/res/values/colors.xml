@@ -13,7 +13,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="lightGray">#F9F9F9</color>
 
-    <color name="green">#66e26b</color>
+    <color name="green">#159a05</color>
     <color name="red">#FF4646</color>
     <color name="yellow">#FFC114</color>
     <color name="darkGray">#313C44</color>
@@ -21,6 +21,6 @@
 
     //recycler
     <color name="deleted">#cf4242</color>
-    <color name="toDonate">#66e26b</color>
+    <color name="toDonate">#5f9959</color>
 
 </resources>

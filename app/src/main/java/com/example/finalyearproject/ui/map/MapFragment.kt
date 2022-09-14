@@ -128,7 +128,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                                 .position(myPos)
                                 .title("My Current Location")
                                 .snippet("\nLook at other markers to \nfind free food around you")
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icteest))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location))
                         )
                         mmarker?.tag = userFirebaseUID
                         mMap.moveCamera(
@@ -180,7 +180,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                                 toDonate.add(FoodItemModel(name, expirationDate, key, true))
                             }
                         }
-                        Log.d("MAP_FRAGMENT_USER_ID_ONCLICKMARKER", "toDonateSize:${toDonate.size} userfirebase: $userFirebaseUID marker user: ${ el.key.toString()}")
+                        Log.d("MAP_FRAGMENT_USER_ID_ONCLICKMARKER", "toDonateSize:${toDonate.size} userfirebase: $userFirebaseUID   marker's user: ${ el.key.toString()}")
                         //if there is something to donate- add marker with button + all the data
                         // THE MARKER IS NOT SHOWN IF THE USER HAS NO ITEMS TO DONATE OR THE ITEMS TO DONATE ARE ALREADY EXPIRED
                         if(toDonate.size != 0 && (userFirebaseUID != el.key.toString())) {
@@ -197,8 +197,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
                             )
                             mmarker?.tag = el.key.toString()
-                            toDonate.clear()
                         }
+                        toDonate.clear()
                     }
             }
         }.addOnFailureListener {

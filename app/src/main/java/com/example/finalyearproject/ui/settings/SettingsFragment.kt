@@ -85,7 +85,7 @@ class SettingsFragment : Fragment() {
         return mView
     }
 
-    fun getQrCodeBitmap(userId: String): Bitmap {
+    private fun getQrCodeBitmap(userId: String): Bitmap {
         val size = 256 //pixels
         val qrCodeContent = "userFirebaseUID:$userId"
         val hints = hashMapOf<EncodeHintType, Int>().also { it[EncodeHintType.MARGIN] = 1 } // Make the QR code buffer border narrower

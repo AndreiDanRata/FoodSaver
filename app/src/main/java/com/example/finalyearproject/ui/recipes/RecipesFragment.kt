@@ -45,7 +45,8 @@ class RecipesFragment : Fragment() {
     private var recipeIds: MutableList<Int> = ArrayList<Int>()
 
     private lateinit var mView: View
-    private val mmAdapter by lazy { RecipesRecyclerAdapter(recipeList) } //add here the recipe list
+    private val mmAdapter by lazy { RecipesRecyclerAdapter(recipeList) }
+    private lateinit var emptyTextView: TextView
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -55,7 +56,7 @@ class RecipesFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_recipes, container, false)
-
+        emptyTextView = mView.findViewById(R.id.empty_textView)
         readDatabase()
 
         redirectToInstructions()
@@ -72,7 +73,6 @@ class RecipesFragment : Fragment() {
         var ingredients: String = ""
 
         loop@ for (item in foodList) {
-
             if (counter > 5 || counter > foodList.size) break@loop
 
             ingredients += item.itemName.replace(" ", "") + ",+"
@@ -83,15 +83,12 @@ class RecipesFragment : Fragment() {
 
         var urlIngredients =
             Constants.SEARCH_BY_INGREDIENTS_BASE_URL + ingredients + "&number=" + numRecipes + "&ranking=1&ignorePantry=true"
-        //Log.d("API_RESPONSE_GET_RECIPES", urlIngredients)
-
+        Log.d("API_RESPONSE_GET_RECIPES", urlIngredients)
         fetchAPIData(urlIngredients).start()
-        Thread.sleep(7000) //TODO LOAD DATA WHEN STARTING THE APP https://stackoverflow.com/questions/71635342/recyclerview-loading-data-from-web-api-how-to-prevent-that-the-recyclerview-is
+        Thread.sleep(7000)
 
-        Log.d(
-            "API_RESPONSE_GET_RECIPES_DATA_RECYCLERVIEW",
-            recipeList.first().title + "xxxxxxx" + recipeList.size
-        )
+        //Log.d("API_RESPONSE_GET_RECIPES_DATA_RECYCLERVIEW", recipeList.first().title + " SIZE " + recipeList.size)
+
         setupRecyclerView()
     }
 
@@ -127,32 +124,39 @@ class RecipesFragment : Fragment() {
                     Log.d("API_RESPONSE_GET_RECIPES_NO_CODE_API", "")
                 }
 
-                //select 5 random elements from recipeIds and creates a list
-                val randomElements = recipeIds.asSequence().shuffled().take(5).toList()
+                if(recipeIds.isNotEmpty()) {
+                    emptyTextView.visibility = View.INVISIBLE
+                    val randomElements = recipeIds.asSequence().shuffled().take(5).toList()
 
 
-                for (id in randomElements) {
+                    for (id in randomElements) {
 
-                    var urlRecipe =
-                        Constants.SEARCH_BY_ID_BASE_URL + id + "/information?includeNutrition=false&apiKey=def03f97eb664436ac3a62c793e582a7"
-                    val url2 = URL(urlRecipe)
+                        var urlRecipe = Constants.SEARCH_BY_ID_BASE_URL + id + "/information?includeNutrition=false&apiKey=def03f97eb664436ac3a62c793e582a7"
+                        val url2 = URL(urlRecipe)
 
-                    val connection = url2.openConnection() as HttpsURLConnection
+                        val connection = url2.openConnection() as HttpsURLConnection
 
-                    if (connection.responseCode == 200) {
-                        val inputSystem = connection.inputStream
-                        val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
+                        if (connection.responseCode == 200) {
+                            val inputSystem = connection.inputStream
+                            val inputStreamReader = InputStreamReader(inputSystem, "UTF-8")
 
-                        var recipeModel =
-                            Gson().fromJson(inputStreamReader, RecipeModel::class.java)
+                            var recipeModel =
+                                Gson().fromJson(inputStreamReader, RecipeModel::class.java)
 
-                        recipeList.add(recipeModel) //TO PARSE HTML TEXT Jsoup.parse(recipeApiRequest.summary).text()
-                        //Log.d("API_RESPONSE_GET_RECIPES",   Jsoup.parse(recipeApiRequest.summary).text())
+                            recipeList.add(recipeModel)
+                            //Log.d("API_RESPONSE_GET_RECIPES",   Jsoup.parse(recipeApiRequest.summary).text())
 
-                        inputStreamReader.close()
-                        inputSystem.close()
+                            inputStreamReader.close()
+                            inputSystem.close()
+                        }
                     }
                 }
+                else {
+                    emptyTextView.visibility = View.VISIBLE
+                }
+
+                //select 5 random elements from recipeIds and creates a list
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -194,7 +198,6 @@ class RecipesFragment : Fragment() {
                 LocalDate.parse(foodItemModel.itemExpirationDate, dateTimeFormatter)
             }
 
-            val emptyTextView: TextView = mView.findViewById(R.id.empty_textView)
             if(foodList.isNotEmpty()) {
                 emptyTextView.visibility = View.INVISIBLE
                 getRecipes(25)

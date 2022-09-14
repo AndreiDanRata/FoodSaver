@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebSettings
 import android.webkit.WebViewClient
 import com.example.finalyearproject.R
 import kotlinx.android.synthetic.main.activity_instructions.*
@@ -34,7 +35,9 @@ class InstructionsActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {}
         if (url != null) {
             webView.settings.allowFileAccess = true
-            webView.settings.domStorageEnabled = true;
+            webView.settings.domStorageEnabled = true
+            webView.settings.loadsImagesAutomatically = true
+            webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             webView.loadUrl(url)
         }
     }
