@@ -24,7 +24,6 @@ import com.google.mlkit.vision.barcode.Barcode
 /**
  * Class responsible for scanning QR Codes and Barcodes.
  */
-
 class BarcodeScannerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityBarcodeScannerBinding
@@ -121,11 +120,10 @@ class BarcodeScannerActivity : AppCompatActivity() {
         }
     }
 
+
     /**
      * This function is responsible for the setup of the camera preview and the image analyzer.
      */
-
-
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 

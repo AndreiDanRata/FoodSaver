@@ -15,10 +15,16 @@ import com.example.finalyearproject.R
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 
+/**
+ * Activity responsible for Registration Screen
+ */
 class RegistrationActivity : AppCompatActivity() {
 
     lateinit var auth: FirebaseAuth
 
+    /**
+     * Initializing the registration activity
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
@@ -31,9 +37,11 @@ class RegistrationActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     *  Method responsible for account creation with input sanitation.
+     * It also informs the users about cases when input does not respect the min characters length, fields not being empty,etc
+     */
     fun registerUser() {
-
-
         val email: String = findViewById<EditText>(R.id.email_edit_text).text.toString()
         val password: String = findViewById<EditText>(R.id.password_edit_text).text.toString()
         val repassword: String = findViewById<EditText>(R.id.re_password_edit_text).text.toString()
@@ -58,7 +66,9 @@ class RegistrationActivity : AppCompatActivity() {
         }
     }
 
-    //Removes whitespaces from the beginning and from the end
+    /**
+     *  Method removes whitespaces from the beginning and from the end of a string
+     */
     fun trim(s: String): String {
         return s.replace("^\\s+|\\s+$".toRegex(), "")
     }

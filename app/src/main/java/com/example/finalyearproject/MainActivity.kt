@@ -20,12 +20,17 @@ import com.example.finalyearproject.util.NotificationReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.*
 
-
+/**
+ *  MainActivity hosts all fragments() after the user logs in
+ *  foodListFragment,recipesFragment,mapFragment,settingsFragment
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
 
-
+    /**
+     * Initializing the activity
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,16 +44,16 @@ class MainActivity : AppCompatActivity() {
                 R.id.mapFragment,
                 R.id.settingsFragment))
 
-
         bottomNavigationView.setupWithNavController(navController)
-
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         myAlarm()
 
     }
 
-    //Hides soft keyboard after clicking outside EditText
+    /**
+     * Method hides soft keyboard after clicking outside an editText box
+     */
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         if (currentFocus != null) {
             val imm = this.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -57,7 +62,9 @@ class MainActivity : AppCompatActivity() {
         return super.dispatchTouchEvent(ev)
     }
 
-
+    /**
+     * Method responsible for managing the times of the day when notifications are shown
+     */
     private fun myAlarm() {
         val calendar = Calendar.getInstance()
         calendar[Calendar.HOUR_OF_DAY] = 12
@@ -78,7 +85,6 @@ class MainActivity : AppCompatActivity() {
         alarmManager.setAndAllowWhileIdle(  //setRepeat
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
-            //AlarmManager.INTERVAL_DAY,       //add a short interval for testing
             pendingIntent
         )
     }

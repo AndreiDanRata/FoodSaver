@@ -12,7 +12,11 @@ import com.example.finalyearproject.R
 import kotlinx.android.synthetic.main.activity_instructions.*
 import kotlinx.android.synthetic.main.activity_instructions.view.*
 
+/**
+ * Activity responsible for creating a web view based on a link provided by the food recipes api
+ */
 class InstructionsActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_instructions)
@@ -25,7 +29,6 @@ class InstructionsActivity : AppCompatActivity() {
         }
 
         val bundle = intent.extras
-
         var url = bundle!!.getString("url", "Default")
 
         if (!url.startsWith("http://") && !url.startsWith("https://")){
@@ -42,7 +45,9 @@ class InstructionsActivity : AppCompatActivity() {
         }
     }
 
-    //override button press for the action bar
+    /**
+     * Method overrides button press for the action bar
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {

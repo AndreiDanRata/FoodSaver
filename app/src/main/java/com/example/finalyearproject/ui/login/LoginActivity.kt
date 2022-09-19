@@ -14,11 +14,16 @@ import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.R
 import com.google.firebase.auth.FirebaseAuth
 
-
+/**
+ * Activity responsible for Login Screen
+ */
 class LoginActivity : AppCompatActivity() {
 
     lateinit var auth: FirebaseAuth
 
+    /**
+     * Initializing the login screen
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -40,6 +45,10 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
+    /**
+     *  Method responsible for account login. It includes input sanitation.
+     *  It also informs the users about cases when input does not respect the min characters length, fields not being empty,etc
+     */
     fun loginUser() {
         var check = true
         var email: String = findViewById<EditText>(R.id.login_email_edit_text).text.toString()
@@ -67,7 +76,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    //Removes whitespaces from the beginning and from the end
+    /**
+     *  Method removes whitespaces from the beginning and from the end of a string
+     */
     fun trim(s: String): String {
         return s.replace("^\\s+|\\s+$".toRegex(), "")
     }
