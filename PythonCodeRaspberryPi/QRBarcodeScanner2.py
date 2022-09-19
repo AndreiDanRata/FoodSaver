@@ -23,9 +23,62 @@ import RPi.GPIO as GPIO
 from pydub import AudioSegment
 from pydub.playback import play
 
+
 #For Api
 import requests
 import json
+
+
+
+
+
+#firebase
+config = {
+    "apiKey":"AIzaSyBw2KpLu-3Xm7oFl6jPYhRqe0LQ7LLWWMc",
+    "authDomain":"finalyearproject-3d868.firebaseapp.com",
+    "databaseURL": "https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app",
+    "storageBucket": "finalyearproject-3d868.appspot.com"
+    }
+firebase = pyrebase.initialize_app(config)
+db = firebase.database()
+#pyrebase bug: to work with order_by_child I have to add this
+def noquote(s):
+     return s
+pyrebase.pyrebase.quote = noquote
+
+
+
+# works with vs
+# soundLink = AudioSegment.from_mp3("LinkToAccount.mp3")
+# soundBeep = AudioSegment.from_mp3("Barcode-scanner-beep-sound.mp3")
+# soundLoggedIn = AudioSegment.from_mp3("UserLogged.mp3")
+# soundNotFound = AudioSegment.from_mp3("ItemNotFound.mp3")
+
+
+# works with vs
+soundLink = AudioSegment.from_wav("/home/andrei/Downloads/test/LinkToAccount.wav")
+soundBeep = AudioSegment.from_wav("/home/andrei/Downloads/test/Barcode-scanner-beep-sound.wav")
+soundLoggedIn = AudioSegment.from_wav("/home/andrei/Downloads/test/UserLogged.wav")
+soundNotFound = AudioSegment.from_wav("/home/andrei/Downloads/test/ItemNotFound.wav")
+
+#user authentification
+fle = Path('/home/andrei/Downloads/test/userFirebase.txt')
+fle.touch(exist_ok=True)  #if file does not exist, then create it.... otherwise do nothing
+
+userFile = open('/home/andrei/Downloads/test/userFirebase.txt', 'r')
+userFirebase = userFile.read()
+print(userFirebase)
+userFile.close()
+
+if len(userFirebase) == 0 or len(userFirebase) == 1:
+    play(soundLink)
+    print("nobody is authentificated")  #show red light
+else:
+    
+    print("user is authentificated")      #show green light
+
+
+
 
 class MyScript:
     def GetBarcodeApiData(barcodeData):
@@ -58,9 +111,14 @@ class MyScript:
     def loginUser(barcodeData):
         play(soundLoggedIn)
         print("User scanned their QR code")
+        global userFirebase 
         userFirebase = barcodeData.replace("userFirebaseUID:","")   #trim the input 
-        file = open("userFirebase.txt", "w")
+        file = open("/home/andrei/Downloads/test/userFirebase.txt", "w")
         file.write(userFirebase)
+        file.close()
+        userFile = open('/home/andrei/Downloads/test/userFirebase.txt', 'r')
+        userFirebase = userFile.read()
+        userFile.close()
     def addItemToDatabase(barcodeData):
         key =  MyScript.GetRandomKey()
         #if it is a qr code with the requested format
@@ -129,8 +187,8 @@ class MyScript:
         else: 
             play(soundNotFound)#add sound for item not found in the api
     class camThread(threading.Thread):
-        def _init_(self, previewName, camID):
-            threading.Thread._init_(self)
+        def __init__(self, previewName, camID):
+            threading.Thread.__init__(self)
             self.previewName = previewName
             self.camID = camID
         def run(self):
@@ -172,13 +230,12 @@ class MyScript:
                 #create rectangle around the code
                 (x, y, w, h) = barcode.rect
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                barcodeData = barcode.data.decode("utf-8")
-                barcodeType = barcode.type        
+                barcodeData = barcode.data.decode("utf-8")      
                 #authentificate user
-                if ("userFirebaseUID:" in barcodeData) and (barcodeData == lastBarcodeData):
+                if ("userFirebaseUID:" in barcodeData) and (barcodeData != lastBarcodeData):
                     MyScript.loginUser(barcodeData)
                 #if the last 2 scanned codes are the same then add the item to the database(lowers misidentifications of the barcode)
-                elif barcodeData  != lastBarcodeDataAdded and barcodeData == lastBarcodeData:
+                elif barcodeData  != lastBarcodeDataAdded and barcodeData != lastBarcodeData:
                     if len(userFirebase) == 0 or len(userFirebase) == 1:
                         play(soundLink)
                     else:
@@ -257,13 +314,13 @@ class MyScript:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
                 
                 barcodeData = barcode.data.decode("utf-8")
-                barcodeType = barcode.type
                 
                 #authentificate user
-                if ("userFirebaseUID:" in barcodeData) and (barcodeData == lastBarcodeData):
+                if ("userFirebaseUID:" in barcodeData) and (barcodeData != lastBarcodeData):
                     MyScript.loginUser(barcodeData)
                 #if the last 2 scanned codes are the same then add the item to the database(lowers misidentifications of the barcode)
-                elif barcodeData  != lastBarcodeDataRemoved and barcodeData == lastBarcodeData:
+                elif barcodeData  != lastBarcodeDataRemoved and barcodeData != lastBarcodeData:
+                    print("item scanned:"+userFirebase)
                     if len(userFirebase) == 0 or len(userFirebase) == 1:
                         play(soundLink)
                     else:
@@ -281,41 +338,6 @@ class MyScript:
         cv2.destroyWindow(previewName)
         
         
-#firebase
-config = {
-    "apiKey":"AIzaSyBw2KpLu-3Xm7oFl6jPYhRqe0LQ7LLWWMc",
-    "authDomain":"finalyearproject-3d868.firebaseapp.com",
-    "databaseURL": "https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app",
-    "storageBucket": "finalyearproject-3d868.appspot.com"
-    }
-firebase = pyrebase.initialize_app(config)
-db = firebase.database()
-#pyrebase bug: to work with order_by_child I have to add this
-def noquote(s):
-     return s
-pyrebase.pyrebase.quote = noquote
-
-#sounds
-soundLink = AudioSegment.from_mp3("LinkToAccount.mp3")
-soundBeep = AudioSegment.from_mp3("Barcode-scanner-beep-sound.mp3")
-soundLoggedIn = AudioSegment.from_mp3("UserLogged.mp3")
-soundNotFound = AudioSegment.from_mp3("ItemNotFound.mp3")
-#user authentification
-fle = Path('userFirebase.txt')
-fle.touch(exist_ok=True)  #if file does not exist, then create it.... otherwise do nothing
-
-userFile = open('userFirebase.txt', 'r')
-userFirebase = userFile.read()
-print(userFirebase)
-userFile.close()
-
-if len(userFirebase) == 0 or len(userFirebase) == 1:
-    play(soundLink)
-    print("nobody is authentificated")  #show red light
-else:
-    
-    print("user is authentificated")      #show green light
-
 
 
 
