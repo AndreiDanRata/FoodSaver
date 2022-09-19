@@ -25,7 +25,10 @@ import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import java.util.*
 
-
+/**
+ * Class responsible for the "Other" framgment
+ * This includes QR code generator + showing the home address
+ */
 class SettingsFragment : Fragment() {
 
     private var database: DatabaseReference =
@@ -35,12 +38,6 @@ class SettingsFragment : Fragment() {
     private lateinit var mView: View
 
     var address = ""
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

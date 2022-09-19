@@ -33,7 +33,10 @@ import java.util.*
 import java.util.function.Predicate
 import javax.net.ssl.HttpsURLConnection
 
-
+/**
+ * This class queries the recipes api using the items provided in the food list
+ * and then shows the recipes in a recyclerview
+ */
 class RecipesFragment : Fragment() {
 
     private var database: DatabaseReference =
@@ -155,8 +158,6 @@ class RecipesFragment : Fragment() {
                     emptyTextView.visibility = View.VISIBLE
                 }
 
-                //select 5 random elements from recipeIds and creates a list
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -215,8 +216,6 @@ class RecipesFragment : Fragment() {
         mView.recipes_recyclerview.adapter = mmAdapter
         mView.recipes_recyclerview.layoutManager = LinearLayoutManager(activity)
         mView.recipes_recyclerview.hasFixedSize()
-
-
     }
 
     private fun redirectToInstructions() {

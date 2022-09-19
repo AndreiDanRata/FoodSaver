@@ -12,7 +12,9 @@ import com.example.finalyearproject.util.Utils
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
-
+/**
+ * Class that implements Google's ML kit for scanning barcodes/QR codes
+ */
 class BarcodeAnalyzer (
     private val context: Context,
     ) : ImageAnalysis.Analyzer {

@@ -10,7 +10,7 @@ import com.example.finalyearproject.R
 import org.jsoup.Jsoup
 
 /**
- * methods that create a binding between the data and
+ * methods that create a binding between the data and ui
  */
 class RecipesRowBinding {
 

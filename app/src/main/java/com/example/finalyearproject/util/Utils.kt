@@ -23,14 +23,12 @@ import javax.net.ssl.HttpsURLConnection
 
 object Utils {
 
-
     private var database: DatabaseReference = Firebase.database("https://finalyearproject-3d868-default-rtdb.europe-west1.firebasedatabase.app").reference
     private var userFirebaseUID: String = FirebaseAuth.getInstance().currentUser!!.uid
 
     fun fetchAPIData(barcode: String, context: Context): Thread {
         return Thread {
             val itemExpirationDate = "11/11/2000"
-               // SimpleDateFormat("d/M/yyyy").format(Date())  //TODO ADD ITEMEXPIRATION DATE INSTEAD OF CURRENT DAY
 
             try {
                 val url =

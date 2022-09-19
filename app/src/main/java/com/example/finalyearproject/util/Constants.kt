@@ -19,14 +19,6 @@ class Constants {
         //  https://api.spoonacular.com/recipes/673463/information?apiKey=def03f97eb664436ac3a62c793e582a7
         const val SEARCH_BY_ID_BASE_URL = "https://api.spoonacular.com/recipes/"
 
-
-        //  querry for recipe information
-
-
-
-
-
-        const val  MAPS_API_KEY=""
     }
 }
 

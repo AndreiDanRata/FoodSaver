@@ -14,14 +14,13 @@ import androidx.core.app.NotificationCompat
 import com.example.finalyearproject.MainActivity
 import com.example.finalyearproject.models.NotificationsList
 
-
+/**
+ * Class responsible for creating notifications
+ */
 class NotificationHelper(private val mContext: Context) {
     fun createNotification() {
 
         val notList = NotificationsList()
-
-
-
 
         val intent = Intent(mContext, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -34,7 +33,7 @@ class NotificationHelper(private val mContext: Context) {
         mBuilder.setSmallIcon(R.drawable.ic_app_icon)
         if(notList.getItemsInNotifications().isNotEmpty()) {
             mBuilder.setContentTitle("Close to expiration!")
-                .setContentText("Some of the food items are about to expire: cook or donate them! +")
+                .setContentText("Some of the food items are about to expire: cook or donate them! ")
                 .setAutoCancel(false)
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setContentIntent(resultPendingIntent)

@@ -22,10 +22,12 @@ import com.google.firebase.database.DatabaseReference
 import kotlinx.android.synthetic.main.foodlist_row_layout.view.*
 import java.security.AccessController.getContext
 
+/**
+ * Adapter class for the recipes list recycler View
+ */
 class RecipesRecyclerAdapter(
     var list: MutableList<RecipeModel>,
 ) : RecyclerView.Adapter<RecipesRecyclerAdapter.MyViewHolder>() {
-
 
 
     var onItemClick: ((RecipeModel) -> Unit)? = null

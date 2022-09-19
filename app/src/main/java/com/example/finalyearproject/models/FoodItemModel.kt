@@ -14,6 +14,4 @@ data class FoodItemModel (
 
     var toDonate: Boolean
 
-//    val barcode: String
-
 ): Parcelable

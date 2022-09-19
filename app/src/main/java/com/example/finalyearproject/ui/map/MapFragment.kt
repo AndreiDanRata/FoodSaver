@@ -37,7 +37,9 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.util.*
 
-
+/**
+ * This class deals with the map functionality using the Google's map API
+ */
 //Live location works on android devices/ not the android studio emulator
 class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener{
 
@@ -78,7 +80,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         showFreeFood()
         Thread.sleep(1500)
 
-        // Obtain the SupportMapFragment. childFragmentManager because this is in a fragment not an activity
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
@@ -158,7 +159,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         database.child("locations").get().addOnSuccessListener {
 
             for (el in it.children) {//for each user with a location
-                //lat, long + get adress using geocoder
+                //lat, long + get address using geocoder
                 val pos = LatLng(
                     el.child("latitude").getValue(Double::class.java)!!,
                     el.child("longitude").getValue(Double::class.java)!!)
@@ -259,9 +260,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     }
             }
 
-        // Return false to indicate that we have not consumed the event and that we wish
-        // for the default behavior to occur (which is for the camera to move such that the
-        // marker is centered and for the marker's info window to open, if it has one).
         return false
     }
 

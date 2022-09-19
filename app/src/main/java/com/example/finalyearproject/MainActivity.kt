@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         myAlarm()
-
     }
 
     /**
@@ -67,8 +66,8 @@ class MainActivity : AppCompatActivity() {
      */
     private fun myAlarm() {
         val calendar = Calendar.getInstance()
-        calendar[Calendar.HOUR_OF_DAY] = 12
-        calendar[Calendar.MINUTE] =0
+        calendar[Calendar.HOUR_OF_DAY] = 22
+        calendar[Calendar.MINUTE] = 15
         calendar[Calendar.SECOND] = 0
         calendar.set(Calendar.SECOND, 0)
         if (calendar.time < Date()){

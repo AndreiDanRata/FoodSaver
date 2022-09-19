@@ -5,5 +5,4 @@ class BarcodeApiRequest(
     var description : String,
     var success : Boolean,
     var barcode : String
-    //Add more if necessary
 )
